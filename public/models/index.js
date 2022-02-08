@@ -11,10 +11,11 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ContactUSDefineModel = exports.db = exports.sequelize = exports.Sequelize = void 0;
+exports.UserDefineModel = exports.ContactUSDefineModel = exports.db = exports.sequelize = exports.Sequelize = void 0;
 var sequelize_1 = require("sequelize");
 Object.defineProperty(exports, "Sequelize", { enumerable: true, get: function () { return sequelize_1.Sequelize; } });
 var contactus_1 = require("./contactus");
+var user_1 = require("./user");
 var env = process.env.NODE_ENV || 'development';
 var config = require('../config/config')[env];
 var sequelize = config.url
@@ -25,9 +26,14 @@ var ContactUSDefineModel = sequelize.define('ContactUSs', __assign({}, contactus
     tableName: 'ContactUSs'
 });
 exports.ContactUSDefineModel = ContactUSDefineModel;
+var UserDefineModel = sequelize.define('Users', __assign({}, user_1.UserModelAttributes), {
+    tableName: 'Users'
+});
+exports.UserDefineModel = UserDefineModel;
 exports.db = {
     sequelize: sequelize,
-    ContactUSs: ContactUSDefineModel
+    ContactUSs: ContactUSDefineModel,
+    Users: UserDefineModel
 };
 // 'use strict';
 // const fs = require('fs');

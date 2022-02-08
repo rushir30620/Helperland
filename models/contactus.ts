@@ -64,6 +64,9 @@ export const ContactUSModelAttributes: ModelAttributes = {
 
 }
 
+// sequelize model:create --name User --attributes name:string,username:string,email:string,password:string
+
+
 
 
 

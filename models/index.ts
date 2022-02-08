@@ -1,5 +1,6 @@
 import { BuildOptions, Model, Sequelize } from 'sequelize';
 import { ContactUS, ContactUSModelAttributes } from './contactus';
+import { User, UserModelAttributes } from './user';
 
 const env = process.env.NODE_ENV || 'development';
 
@@ -25,17 +26,34 @@ const ContactUSDefineModel = sequelize.define(
     }
 ) as ContactUSModelStatic;
 
+// User model
+type UserModelStatic = typeof Model & {
+    new (values?: object, options?: BuildOptions): User;
+};
+
+const UserDefineModel = sequelize.define(
+    'Users',
+    {
+        ...UserModelAttributes
+    },
+    {
+        tableName: 'Users'
+    }
+) as UserModelStatic;
+
 export interface DbContext {
     sequelize: Sequelize;
     ContactUSs: ContactUSModelStatic;
+    Users: UserModelStatic;
 }
 
 export const db: DbContext = {
     sequelize: sequelize,
-    ContactUSs: ContactUSDefineModel
+    ContactUSs: ContactUSDefineModel,
+    Users: UserDefineModel
 }
 
-export { ContactUSDefineModel };
+export { ContactUSDefineModel, UserDefineModel };
 
 
 

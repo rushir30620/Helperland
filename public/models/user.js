@@ -15,45 +15,74 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ContactUSModelAttributes = exports.ContactUS = void 0;
+exports.UserModelAttributes = exports.User = void 0;
 var sequelize_1 = require("sequelize");
-var ContactUS = /** @class */ (function (_super) {
-    __extends(ContactUS, _super);
-    function ContactUS() {
+var User = /** @class */ (function (_super) {
+    __extends(User, _super);
+    function User() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    return ContactUS;
+    return User;
 }(sequelize_1.Model));
-exports.ContactUS = ContactUS;
+exports.User = User;
 ;
-exports.ContactUSModelAttributes = {
+exports.UserModelAttributes = {
     id: {
         autoIncrement: true,
         type: sequelize_1.DataTypes.BIGINT,
         allowNull: false,
         primaryKey: true
     },
-    name: {
+    firstName: {
+        type: sequelize_1.DataTypes.STRING
+    },
+    lastName: {
         type: sequelize_1.DataTypes.STRING
     },
     email: {
         type: sequelize_1.DataTypes.STRING,
         unique: true
     },
-    subjectType: {
-        type: sequelize_1.DataTypes.STRING
+    password: {
+        type: sequelize_1.DataTypes.STRING,
+        unique: true
     },
-    subject: {
-        type: sequelize_1.DataTypes.STRING
+    mobile: {
+        type: sequelize_1.DataTypes.BIGINT,
+        unique: true
     },
-    phoneNumber: {
+    userTypeId: {
         type: sequelize_1.DataTypes.INTEGER
     },
-    uploadFileName: {
+    gender: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: true
     },
-    path: {
+    dateOfBirth: {
+        type: sequelize_1.DataTypes.DATE,
+        allowNull: true
+    },
+    isRegisteredUser: {
+        type: sequelize_1.DataTypes.BOOLEAN,
+        allowNull: false
+    },
+    worksWithPets: {
+        type: sequelize_1.DataTypes.BOOLEAN,
+        allowNull: true
+    },
+    zipCode: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: true
+    },
+    languageId: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: true
+    },
+    nationalityId: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: true
+    },
+    resetKey: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: true
     },
@@ -66,13 +95,12 @@ exports.ContactUSModelAttributes = {
         allowNull: false
     }
 };
-// sequelize model:create --name User --attributes name:string,username:string,email:string,password:string
 // 'use strict';
 // const {
 //   Model
 // } = require('sequelize');
 // module.exports = (sequelize, DataTypes) => {
-//   class ContactUs extends Model {
+//   class User extends Model {
 //     /**
 //      * Helper method for defining associations.
 //      * This method is not a part of Sequelize lifecycle.
@@ -82,17 +110,24 @@ exports.ContactUSModelAttributes = {
 //       // define association here
 //     }
 //   }
-//   ContactUs.init({
-//     name: DataTypes.STRING,
+//   User.init({
+//     firstName: DataTypes.STRING,
+//     lastName: DataTypes.STRING,
 //     email: DataTypes.STRING,
-//     subjectType: DataTypes.STRING,
-//     subject: DataTypes.STRING,
-//     phoneNumber: DataTypes.INTEGER,
-//     message: DataTypes.STRING,
-//     uploadFileName: DataTypes.STRING
+//     password: DataTypes.STRING,
+//     mobile: DataTypes.INTEGER,
+//     userTypeId: DataTypes.INTEGER,
+//     gender: DataTypes.STRING,
+//     dateOfBirth: DataTypes.DATE,
+//     isRegisteredUser: DataTypes.BOOLEAN,
+//     worksWithPets: DataTypes.BOOLEAN,
+//     zipCode: DataTypes.INTEGER,
+//     languageId: DataTypes.INTEGER,
+//     nationalityId: DataTypes.INTEGER,
+//     resetKey: DataTypes.STRING
 //   }, {
 //     sequelize,
-//     modelName: 'ContactUs',
+//     modelName: 'User',
 //   });
-//   return ContactUs;
+//   return User;
 // };

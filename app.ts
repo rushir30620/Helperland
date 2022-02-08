@@ -31,13 +31,14 @@ const swaggerOptions = {
             servers: ["http://localhost:3000"]
         }
     },
-    apis: ['public/routes/contact.routes.js']
+    apis: ['public/routes/contact.routes.js', 'public/routes/user.routes.js']
 }
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 
 import router from "./routes/contact.routes";
+import router1 from "./routes/user.routes";
 
 //Parse incoming requests data
 app.use(bodyParser.json());
@@ -45,6 +46,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({dest: 'images'}).single('file'));
 
 app.use('/', router);
+app.use('/', router1);
 
 server.listen(port, () => {
     console.log(`Server running at http://${hostname}:${port}/`)

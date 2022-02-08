@@ -20,10 +20,14 @@ const controller: ContactUsersController = new ContactUsersController(service);
  *  ContactUS:
  *   type: object
  *   properties:
- *    name:
+ *    firstname:
  *     type: string
- *     description: name of the Contact User
- *     example: 'Rathod Rushikesh'
+ *     description: Firstname of the Contact User
+ *     example: 'Rushikesh'
+ *    lastname:
+ *     type: string
+ *     description: Lastname of the Contact User
+ *     example: 'Rathod'
  *    email:
  *     type: string
  *     description: email of the employee
@@ -40,15 +44,9 @@ const controller: ContactUsersController = new ContactUsersController(service);
  *     type: number
  *     description: contact user phone number
  *     example: 1234567890
- *    uploadFileName:
+ *    file:
  *     type: file
- *     format: binary
  *     description: Uploaded file name
- *     example: 'file.png'
- *    path:
- *     type: string
- *     description: Path of Uploaded file
- *     example: '/models/file.png'
  */
 
 //post swagger

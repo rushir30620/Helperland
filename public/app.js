@@ -68,16 +68,18 @@ var swaggerOptions = {
             servers: ["http://localhost:3000"]
         }
     },
-    apis: ['public/routes/contact.routes.js']
+    apis: ['public/routes/contact.routes.js', 'public/routes/user.routes.js']
 };
 var swaggerDocs = (0, swagger_jsdoc_1.default)(swaggerOptions);
 app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerDocs));
 var contact_routes_1 = __importDefault(require("./routes/contact.routes"));
+var user_routes_1 = __importDefault(require("./routes/user.routes"));
 //Parse incoming requests data
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: false }));
 app.use((0, multer_1.default)({ dest: 'images' }).single('file'));
 app.use('/', contact_routes_1.default);
+app.use('/', user_routes_1.default);
 server.listen(port, function () {
     console.log("Server running at http://".concat(hostname, ":").concat(port, "/"));
     models_1.sequelize.authenticate().then(function () { return __awaiter(void 0, void 0, void 0, function () {
