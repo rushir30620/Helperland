@@ -1,0 +1,24 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var express_1 = __importDefault(require("express"));
+var bookservice_repository_1 = require("../ServiceRequest/bookservice.repository");
+var bookservice_service_1 = require("../ServiceRequest/bookservice.service");
+var bookservice_controller_1 = require("../ServiceRequest/bookservice.controller");
+var user_repository_1 = require("../user/user.repository");
+var user_service_1 = require("../user/user.service");
+var user_controller_1 = require("../user/user.controller");
+var router = express_1.default.Router();
+var bookRepo = new bookservice_repository_1.ServiceBookRepository();
+var bookService = new bookservice_service_1.ServiceBook(bookRepo);
+var bookController = new bookservice_controller_1.ServiceBookController(bookService);
+var userrepo = new user_repository_1.UserRepository();
+var userservice = new user_service_1.UserService(userrepo);
+var usercontroller = new user_controller_1.UserController(userservice);
+router.post('/setup-service', usercontroller.validateTokenMiddleware, bookController.serviceSetup);
+router.post('/schedule-service', usercontroller.validateTokenMiddleware, bookController.tokenDecode, bookController.createScheduleRequest);
+router.post('/add-new-address', usercontroller.validateTokenMiddleware, bookController.addNewAddress);
+router.get('/get-address', usercontroller.validateTokenMiddleware, bookController.getExistingAddress);
+router.get('/get-favourite-sp', usercontroller.validateTokenMiddleware, bookController.getFavoriteAndBlockedSP);
+module.exports = router;
