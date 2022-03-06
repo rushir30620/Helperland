@@ -67,6 +67,7 @@ export class UserController{
                 return res.status(200).json({user});
             })
             .catch((error: Error) => {
+                console.log(error);
                 return res.status(500).json({
                     error:error
                 });
@@ -85,10 +86,11 @@ export class UserController{
                     })
                 }
                 const {user} = decodedToken;
+                console.log(user);
                 if(user){
                     user.isRegisteredUser = true;
-                    console.log(user);
                     const userUpdate = await db.Users.update(user, {where: {email: user.email}});
+                    console.log(userUpdate);
                     if(userUpdate) {
                         return res.status(200).json({user})
                     }
@@ -120,8 +122,15 @@ export class UserController{
                 if(isUserRegister){
                     const passwordMatch = await bcrypt.compare(req.body.password, user.password!);
                     if(passwordMatch){
-                        const userEmail = user.email;
-                        const token = jwt.sign({userEmail},process.env.JWT_KEY!,{expiresIn:'2h'});
+                        const userObj = {
+                            id: user.id,
+                            firstName: user.firstName,
+                            lastName: user.lastName,
+                            email: user.email,
+                            mobile: user.mobile
+                        };
+                        console.log(user);
+                        const token = jwt.sign(userObj,process.env.JWT_KEY!,{expiresIn:'2h'});
                         // const token = this.userService.createToken(user.email!);
                         return res.status(200)
                         .cookie("token", token, { httpOnly: true, expires:new Date(Date.now()+600000) })
@@ -152,7 +161,8 @@ export class UserController{
             return res.status(403).json({message:'Invalid login credentials'});
           } else {
               console.log(user);
-            return this.userService.loginUser(user.userEmail)
+              req.body.user = user;
+            return this.userService.loginUser(user.email)
             .then(user => {
               if(user === null){
                 return res.status(401).json({message:'user not found'});

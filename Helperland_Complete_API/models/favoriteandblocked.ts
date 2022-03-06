@@ -2,7 +2,7 @@ import { Model, DataTypes, ModelAttributes } from 'sequelize';
 
 export class FavoriteAndBlocked extends Model{
 
-    Id!:number;
+    id!:number;
     UserId!:number;
     TargetUserId!:number;
     IsFavorite!: boolean;

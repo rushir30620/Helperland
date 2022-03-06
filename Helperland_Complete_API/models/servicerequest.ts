@@ -5,7 +5,7 @@ export class ServiceRequest extends Model{
     ServiceRequestId!:number;
     UserId!: number;
     ServiceId!: number;
-    ServiceStartDat!:Date;
+    ServiceStartDate!:Date;
     ServiceStartTime!:number;
     ZipCode!:string;
     ServiceHourlyRate!: number;
@@ -18,7 +18,7 @@ export class ServiceRequest extends Model{
     PaymentTransactionRefNo!: string;
     PaymentDue!: boolean ;
     ServiceProviderId!: number;
-    SPAcceptedDat!: Date;
+    SPAcceptedDate!: Date;
     HasPets!: boolean;
     Status!: number;
     ModifiedBy!: number;

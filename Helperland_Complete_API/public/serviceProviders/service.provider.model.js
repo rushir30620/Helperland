@@ -31,6 +31,10 @@ exports.ServiceProviderSchema = {
                 .required()
                 .example(1234567890)
                 .description('Mobile number user'),
+            zipCode: celebrate_1.Joi.number()
+                .integer()
+                .example(361210)
+                .description('Zipcode of the user address'),
             password: celebrate_1.Joi.string()
                 .required()
                 .example('12345fm')

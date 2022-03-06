@@ -107,6 +107,7 @@ var UserController = /** @class */ (function () {
                                 return res.status(200).json({ user: user });
                             })
                                 .catch(function (error) {
+                                console.log(error);
                                 return res.status(500).json({
                                     error: error
                                 });
@@ -134,12 +135,13 @@ var UserController = /** @class */ (function () {
                                             })];
                                     }
                                     user = decodedToken.user;
+                                    console.log(user);
                                     if (!user) return [3 /*break*/, 2];
                                     user.isRegisteredUser = true;
-                                    console.log(user);
                                     return [4 /*yield*/, index_1.db.Users.update(user, { where: { email: user.email } })];
                                 case 1:
                                     userUpdate = _a.sent();
+                                    console.log(userUpdate);
                                     if (userUpdate) {
                                         return [2 /*return*/, res.status(200).json({ user: user })];
                                     }
@@ -168,7 +170,7 @@ var UserController = /** @class */ (function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, this.userService.loginUser(req.body.email)
                         .then(function (user) { return __awaiter(_this, void 0, void 0, function () {
-                        var isUserRegister, passwordMatch, userEmail, token;
+                        var isUserRegister, passwordMatch, userObj, token;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
@@ -182,8 +184,15 @@ var UserController = /** @class */ (function () {
                                 case 2:
                                     passwordMatch = _a.sent();
                                     if (passwordMatch) {
-                                        userEmail = user.email;
-                                        token = jsonwebtoken_1.default.sign({ userEmail: userEmail }, process.env.JWT_KEY, { expiresIn: '2h' });
+                                        userObj = {
+                                            id: user.id,
+                                            firstName: user.firstName,
+                                            lastName: user.lastName,
+                                            email: user.email,
+                                            mobile: user.mobile
+                                        };
+                                        console.log(user);
+                                        token = jsonwebtoken_1.default.sign(userObj, process.env.JWT_KEY, { expiresIn: '2h' });
                                         // const token = this.userService.createToken(user.email!);
                                         return [2 /*return*/, res.status(200)
                                                 .cookie("token", token, { httpOnly: true, expires: new Date(Date.now() + 600000) })
@@ -216,7 +225,8 @@ var UserController = /** @class */ (function () {
                     }
                     else {
                         console.log(user);
-                        return _this.userService.loginUser(user.userEmail)
+                        req.body.user = user;
+                        return _this.userService.loginUser(user.email)
                             .then(function (user) {
                             if (user === null) {
                                 return res.status(401).json({ message: 'user not found' });

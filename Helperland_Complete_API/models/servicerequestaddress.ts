@@ -2,8 +2,8 @@ import { Model, DataTypes, ModelAttributes } from 'sequelize';
 
 export class ServiceRequestAddress extends Model{
 
-    Id!:number;
-    // ServiceRequestId!: number;
+    id!:number;
+    ServiceRequestId!: number;
     Addressline1!: string;
     Addressline2!: string;
     City!: string;
@@ -11,6 +11,7 @@ export class ServiceRequestAddress extends Model{
     PostalCode!: string;
     Mobile!: string;
     Email!: string;
+    // ServiceRequestId: any;
 }
 
 export const ServiceRequestAddressModelAttributes:ModelAttributes = {

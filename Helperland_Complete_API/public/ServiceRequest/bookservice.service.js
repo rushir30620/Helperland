@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -60,6 +71,13 @@ var ServiceBook = /** @class */ (function () {
             });
         });
     };
+    ServiceBook.prototype.getServiceProvider = function (zipCode) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.serviceBookRepository.getServiceProvider(zipCode)];
+            });
+        });
+    };
     ServiceBook.prototype.addNewAddress = function (userAddress) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -74,8 +92,8 @@ var ServiceBook = /** @class */ (function () {
             });
         });
     };
-    ServiceBook.prototype.createToken = function (userEmail, postalcode) {
-        var token = jsonwebtoken_1.default.sign({ userEmail: userEmail, postalcode: postalcode }, process.env.JWT_KEY, { expiresIn: "3h" });
+    ServiceBook.prototype.createToken = function (user, postalcode) {
+        var token = jsonwebtoken_1.default.sign(__assign(__assign({}, user), { postalcode: postalcode }), process.env.JWT_KEY);
         return token;
     };
     ServiceBook.prototype.getUserWithEmail = function (userEmail) {
@@ -114,6 +132,15 @@ var ServiceBook = /** @class */ (function () {
             }
         }
         return favoriteSP;
+    };
+    ServiceBook.prototype.mailData = function (userEmail) {
+        var mailOptions = {
+            from: process.env.USER,
+            to: userEmail,
+            subject: "New Service Register",
+            html: "<h4>New Sevice Register in your area. Kindly Check It.</h4>"
+        };
+        return mailOptions;
     };
     return ServiceBook;
 }());

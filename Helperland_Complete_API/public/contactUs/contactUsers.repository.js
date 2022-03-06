@@ -44,28 +44,28 @@ var ContactUsersRepository = /** @class */ (function () {
     ContactUsersRepository.prototype.getContactUsersById = function (contactUsId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, index_1.db.ContactUSs.findOne({ where: { id: contactUsId } })];
+                return [2 /*return*/, index_1.db.ContactUS.findOne({ where: { id: contactUsId } })];
             });
         });
     };
     ContactUsersRepository.prototype.getAllContactUsers = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, index_1.db.ContactUSs.findAll()];
+                return [2 /*return*/, index_1.db.ContactUS.findAll()];
             });
         });
     };
     ContactUsersRepository.prototype.addContactUsers = function (contactUsers) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, index_1.db.ContactUSs.create(contactUsers)];
+                return [2 /*return*/, index_1.db.ContactUS.create(contactUsers)];
             });
         });
     };
     ContactUsersRepository.prototype.deleteContactUser = function (contactUsId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, index_1.db.ContactUSs.destroy({ where: { id: contactUsId } })];
+                return [2 /*return*/, index_1.db.ContactUS.destroy({ where: { id: contactUsId } })];
             });
         });
     };

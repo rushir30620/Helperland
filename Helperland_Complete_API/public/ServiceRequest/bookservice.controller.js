@@ -41,6 +41,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ServiceBookController = void 0;
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+var nodemailer_1 = __importDefault(require("nodemailer"));
+require('dotenv').config();
 var ServiceBookController = /** @class */ (function () {
     function ServiceBookController(serviceBook) {
         var _this = this;
@@ -73,9 +75,9 @@ var ServiceBookController = /** @class */ (function () {
                                             return res.status(403).json({ msg: "Invalid Token" });
                                         }
                                         else {
-                                            var userEmail = user.userEmail;
+                                            var userEmail = user.email;
                                             var postalcode = req.body.postalcode;
-                                            var token = _this.serviceBook.createToken(userEmail, postalcode);
+                                            var token = _this.serviceBook.createToken(req.body.user, postalcode);
                                             return res.status(200).cookie("token", token, { httpOnly: true });
                                         }
                                     });
@@ -110,13 +112,13 @@ var ServiceBookController = /** @class */ (function () {
                         else {
                             console.log(user);
                             req.body.ZipCode = user.postalcode;
-                            req.body.email = user.userEmail;
-                            return _this.serviceBook.getUserWithEmail(user.userEmail)
+                            req.body.email = user.email;
+                            return _this.serviceBook.getUserWithEmail(user.email)
                                 .then(function (user) {
                                 // console.log(user?.userTypeId);
                                 var abc = user === null || user === void 0 ? void 0 : user.userTypeId;
                                 console.log(abc);
-                                if (abc == 1) {
+                                if (abc == 4) {
                                     next();
                                 }
                                 else {
@@ -140,19 +142,20 @@ var ServiceBookController = /** @class */ (function () {
             });
         }); };
         this.createScheduleRequest = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var token;
+            var serviceProviderList, token;
             var _this = this;
             return __generator(this, function (_a) {
+                serviceProviderList = [];
                 token = req.headers.authorization;
                 req.body.ServiceHourlyRate = 18;
                 req.body.ExtraHours = req.body.ExtraService.length * 0.5;
                 req.body.SubTotal = req.body.ServiceHourlyRate * req.body.ServiceHours;
                 req.body.TotalCost = req.body.ExtraService.length * 9 + req.body.SubTotal;
                 req.body.ServiceRequestAddress.email = req.body.email;
-                return [2 /*return*/, this.serviceBook.getUserWithEmail(req.body.email)
+                return [2 /*return*/, this.serviceBook.getUserWithEmail(req.body.user.email)
                         .then(function (user) {
                         if (user) {
-                            if (user.userTypeId === 1) {
+                            if (user.userTypeId === 4) {
                                 req.body.UserId = user.id;
                                 req.body.ModifiedBy = user.id;
                             }
@@ -164,9 +167,57 @@ var ServiceBookController = /** @class */ (function () {
                             return res.status(301).json("User not found");
                         }
                         return _this.serviceBook.createScheduleRequestWithAddress(req.body)
-                            .then(function (request) {
-                            return res.status(200).json(request);
-                        })
+                            .then(function (request) { return __awaiter(_this, void 0, void 0, function () {
+                            var _this = this;
+                            return __generator(this, function (_a) {
+                                if (request) {
+                                    return [2 /*return*/, this.serviceBook.getServiceProvider(request.ZipCode)
+                                            .then(function (user) { return __awaiter(_this, void 0, void 0, function () {
+                                            var sp, sp, transporter, mailOptions;
+                                            return __generator(this, function (_a) {
+                                                if (user.length > 0) {
+                                                    for (sp in user) {
+                                                        serviceProviderList.push(user[sp].email);
+                                                    }
+                                                    for (sp in serviceProviderList) {
+                                                        transporter = nodemailer_1.default.createTransport({
+                                                            service: process.env.SERVICE,
+                                                            auth: {
+                                                                user: process.env.USER,
+                                                                pass: process.env.PASS,
+                                                            },
+                                                        });
+                                                        mailOptions = this.serviceBook.mailData(serviceProviderList[sp]);
+                                                        transporter.sendMail(mailOptions, function (error, info) {
+                                                            if (error) {
+                                                                res.status(404).json({
+                                                                    error: error,
+                                                                    message: "Email cannot be sent.."
+                                                                });
+                                                            }
+                                                        });
+                                                    }
+                                                    return [2 /*return*/, res.status(200).json({ message: "Booking has been successfully submitted!!" })];
+                                                }
+                                                else {
+                                                    return [2 /*return*/, res.status(404).json({ message: "User Not Found" })];
+                                                }
+                                                return [2 /*return*/];
+                                            });
+                                        }); })
+                                            .catch(function (error) {
+                                            console.log(error);
+                                            return res.status(500).json({
+                                                error: error,
+                                            });
+                                        })];
+                                }
+                                else {
+                                    return [2 /*return*/, res.status(500).json({ message: "Something went wrong" })];
+                                }
+                                return [2 /*return*/];
+                            });
+                        }); })
                             .catch(function (error) {
                             console.log(error);
                             return res.status(500).json({
@@ -191,9 +242,9 @@ var ServiceBookController = /** @class */ (function () {
                             return res.status(403).json({ msg: "Invalid Token" });
                         }
                         else {
-                            req.body.email = user.userEmail;
+                            req.body.email = user.email;
                             req.body.PostalCode = user.postalcode;
-                            return _this.serviceBook.getUserWithEmail(user.userEmail)
+                            return _this.serviceBook.getUserWithEmail(user.email)
                                 .then(function (user) {
                                 if (user) {
                                     req.body.UserId = user.id;
@@ -237,7 +288,7 @@ var ServiceBookController = /** @class */ (function () {
                             return res.status(403).json({ msg: "Invalid Token" });
                         }
                         else {
-                            return _this.serviceBook.getUserWithEmail(user.userEmail)
+                            return _this.serviceBook.getUserWithEmail(user.email)
                                 .then(function (userWithEmail) {
                                 if (userWithEmail) {
                                     return _this.serviceBook.getUserWithAddress(userWithEmail.id)
@@ -294,7 +345,7 @@ var ServiceBookController = /** @class */ (function () {
                             return res.status(403).json({ message: "Invalid token" });
                         }
                         else {
-                            return _this.serviceBook.getUserWithEmail(user.userEmail)
+                            return _this.serviceBook.getUserWithEmail(user.email)
                                 .then(function (user) {
                                 if (user === null) {
                                     return res.status(404).json({ message: "user not found" });

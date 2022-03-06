@@ -18,6 +18,10 @@ export class ServiceBook{
         return this.serviceBookRepository.createScheduleRequestWithAddress(servicerequest);
     }
 
+    public async getServiceProvider(zipCode:string): Promise<User[]> {
+        return this.serviceBookRepository.getServiceProvider(zipCode);
+      }
+
     public async addNewAddress(userAddress: {[key: number | string]: UserAddress}): Promise<UserAddress> {
         return this.serviceBookRepository.addNewAddress(userAddress);
     }
@@ -26,8 +30,8 @@ export class ServiceBook{
         return this.serviceBookRepository.getAllServiceProvider();
     }
 
-    public createToken( userEmail : string, postalcode: string ): string {
-        const token = jwt.sign({userEmail, postalcode}, process.env.JWT_KEY!, {expiresIn: "3h"} );
+    public createToken( user : object, postalcode: string ): string {
+        const token = jwt.sign({...user, postalcode}, process.env.JWT_KEY! );
         return token;
     }
 
@@ -55,5 +59,15 @@ export class ServiceBook{
           }
         }
         return favoriteSP;
+    }
+
+    public mailData(userEmail:string): typeof mailOptions{
+        const mailOptions = {
+            from:process.env.USER,
+            to: userEmail,
+            subject: "New Service Register",
+            html: `<h4>New Sevice Register in your area. Kindly Check It.</h4>`
+        };
+        return mailOptions;
     }
 }

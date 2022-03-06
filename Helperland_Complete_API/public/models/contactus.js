@@ -47,7 +47,10 @@ exports.ContactUSModelAttributes = {
         type: sequelize_1.DataTypes.STRING
     },
     phoneNumber: {
-        type: sequelize_1.DataTypes.INTEGER
+        type: sequelize_1.DataTypes.BIGINT
+    },
+    message: {
+        type: sequelize_1.DataTypes.STRING
     },
     uploadFileName: {
         type: sequelize_1.DataTypes.STRING,

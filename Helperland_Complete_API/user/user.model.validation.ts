@@ -23,6 +23,7 @@ export const UserSchema = {
                 .description('Last Name of User'),
             email: Joi.string()
                 .required()
+                .email()
                 .example('abc@gmail.com')
                 .description('Email Id of User'),
             mobile: Joi.number()

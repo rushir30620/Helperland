@@ -31,7 +31,7 @@ const swaggerOptions = {
             servers: ["http://localhost:3000"]
         }
     },
-    apis: ['public/routes/contact.routes.js', 'public/routes/user.routes.js']
+    apis: ['./routes/contact.routes.ts', './routes/user.routes.ts', './routes/serviceRequest.routes.ts', './routes/customerPage.routes.ts']
 }
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
@@ -40,6 +40,7 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 import router from "./routes/contact.routes";
 import router1 from "./routes/user.routes";
 import router2 from "./routes/serviceRequest.routes";
+import router3 from "./routes/customerPage.routes";
 
 //Parse incoming requests data
 app.use(bodyParser.json());
@@ -49,6 +50,7 @@ app.use(multer({dest: 'images'}).single('file'));
 app.use('/', router);
 app.use('/', router1);
 app.use('/', router2);
+app.use('/', router3);
 
 server.listen(port, () => {
     console.log(`Server running at http://${hostname}:${port}/`)

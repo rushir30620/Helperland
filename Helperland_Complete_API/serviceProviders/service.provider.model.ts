@@ -30,6 +30,10 @@ export const ServiceProviderSchema = {
                 .required()
                 .example(1234567890)
                 .description('Mobile number user'),
+            zipCode: Joi.number()
+                .integer()
+                .example(361210)
+                .description('Zipcode of the user address'),
             password: Joi.string()
                 .required()
                 .example('12345fm')

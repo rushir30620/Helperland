@@ -97,6 +97,13 @@ var ServiceBookRepository = /** @class */ (function () {
             });
         });
     };
+    ServiceBookRepository.prototype.getServiceProvider = function (zipCode) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, index_1.db.Users.findAll({ where: { userTypeId: 3, zipCode: zipCode } })];
+            });
+        });
+    };
     return ServiceBookRepository;
 }());
 exports.ServiceBookRepository = ServiceBookRepository;

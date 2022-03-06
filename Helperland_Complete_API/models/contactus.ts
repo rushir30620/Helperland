@@ -13,6 +13,8 @@ export class ContactUS extends Model {
 
     phoneNumber?: number;
 
+    message?: string;
+
     uploadFileName?: string;
 
     path?: string;
@@ -43,7 +45,10 @@ export const ContactUSModelAttributes: ModelAttributes = {
         type: DataTypes.STRING
     },
     phoneNumber: {
-        type: DataTypes.INTEGER
+        type: DataTypes.BIGINT
+    },
+    message: {
+        type: DataTypes.STRING
     },
     uploadFileName: {
         type: DataTypes.STRING,

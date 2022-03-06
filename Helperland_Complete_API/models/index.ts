@@ -6,6 +6,7 @@ import { ServiceRequestAddress, ServiceRequestAddressModelAttributes } from './s
 import { ServiceRequestExtra, ServiceRequestExtraModelAttributes } from './servicerequestextra';
 import { UserAddress, UserAddressModelAttributes } from './useraddress';
 import { FavoriteAndBlocked, FavoriteAndBlockedModelAttributes } from './favoriteandblocked';
+import { Rating, RatingAttributes } from './rating';
 
 const env = process.env.NODE_ENV || 'development';
 
@@ -46,13 +47,17 @@ type FavoriteAndBlockedModelStatic = typeof Model & {
     new (values?: object, options?: BuildOptions): FavoriteAndBlocked;
 };
 
+type RatingModelStatic = typeof Model & {
+    new (values?: object, options?: BuildOptions): Rating;
+};
+
 const ContactUSDefineModel = sequelize.define(
-    'ContactUSs',
+    'ContactUs',
     {
         ...ContactUSModelAttributes
     },
     {
-        tableName: 'ContactUSs'
+        tableName: 'ContactUs'
     }
 ) as ContactUSModelStatic;
 
@@ -116,26 +121,38 @@ const FavoriteAndBlockedDefineModel = sequelize.define(
     }
 ) as FavoriteAndBlockedModelStatic;
 
+const RatingDefineModel = sequelize.define(
+    'Rating',
+    {
+        ...RatingAttributes
+    },
+    {
+        tableName: 'Rating'
+    }
+) as RatingModelStatic;
+
 export interface DbContext {
     sequelize: Sequelize;
-    ContactUSs: ContactUSModelStatic;
+    ContactUS: ContactUSModelStatic;
     Users: UserModelStatic;
     ServiceRequest: ServiceRequestModelStatic;
     ServiceRequestAddress: ServiceRequestAddressModelStatic;
     UserAddress: UserAddressModelStatic;
     ServiceRequestExtra: ServiceRequestExtraModelStatic;
     FavoriteAndBlocked: FavoriteAndBlockedModelStatic;
+    Rating: RatingModelStatic;
 }
 
 export const db: DbContext = {
     sequelize: sequelize,
-    ContactUSs: ContactUSDefineModel,
+    ContactUS: ContactUSDefineModel,
     Users: UserDefineModel,
     ServiceRequest: ServiceRequestDefineModel,
     ServiceRequestAddress: ServiceRequestAddressDefineModel,
     ServiceRequestExtra: ServiceRequestExtraDefineModel,
     UserAddress: UserAddressDefineModel,
     FavoriteAndBlocked: FavoriteAndBlockedDefineModel,
+    Rating: RatingDefineModel
 }
 
 db.Users.hasMany(db.UserAddress, {
@@ -229,6 +246,24 @@ db.Users.hasMany(db.FavoriteAndBlocked,{
     constraints: true,
     onDelete: "CASCADE",
 });
+
+db.Users.hasMany(db.Rating,{
+    foreignKey: {
+        name: "RatingFrom",
+        allowNull: false
+    },
+    constraints: true,
+    onDelete: "CASCADE"
+});
+
+db.ServiceRequest.hasOne(db.Rating,{
+    foreignKey:{
+        name: "ServiceRequestId",
+        allowNull: false
+    },
+    constraints: true,
+    onDelete: "CASCADE"
+})
 
 export default db;
 

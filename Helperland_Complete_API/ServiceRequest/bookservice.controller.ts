@@ -1,7 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { ServiceBook } from "./bookservice.service";
 import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
+require('dotenv').config();
 import { UserAddress } from "../models/useraddress";
+import db from "../models";
 
 export class ServiceBookController {
     public constructor(private readonly serviceBook: ServiceBook) {
@@ -33,9 +36,9 @@ export class ServiceBookController {
                                     return res.status(403).json({ msg: "Invalid Token" });
                                 }
                                 else {
-                                    const userEmail = user.userEmail;
+                                    const userEmail = user.email;
                                     const postalcode = req.body.postalcode;
-                                    const token = this.serviceBook.createToken(userEmail, postalcode);
+                                    const token = this.serviceBook.createToken(req.body.user, postalcode);
                                     return res.status(200).cookie("token", token, { httpOnly: true });
                                 }
                             });
@@ -64,15 +67,15 @@ export class ServiceBookController {
                     return res.status(403).json({ msg: "Invalid Token" });
                 }
                 else {
-                    console.log(user);    
+                    console.log(user);
                     req.body.ZipCode = user.postalcode;
-                    req.body.email = user.userEmail;
-                    return this.serviceBook.getUserWithEmail(user.userEmail)
+                    req.body.email = user.email;
+                    return this.serviceBook.getUserWithEmail(user.email)
                         .then(user => {
                             // console.log(user?.userTypeId);
                             const abc = user?.userTypeId;
                             console.log(abc);
-                            if (abc == 1) {
+                            if (abc == 4) {
                                 next();
                             }
                             else {
@@ -94,16 +97,17 @@ export class ServiceBookController {
     };
 
     public createScheduleRequest = async (req: Request, res: Response) => {
+        let serviceProviderList: string[] = [];
         const token = req.headers.authorization;
         req.body.ServiceHourlyRate = 18;
         req.body.ExtraHours = req.body.ExtraService.length * 0.5;
         req.body.SubTotal = req.body.ServiceHourlyRate * req.body.ServiceHours;
         req.body.TotalCost = req.body.ExtraService.length * 9 + req.body.SubTotal;
         req.body.ServiceRequestAddress.email = req.body.email;
-        return this.serviceBook.getUserWithEmail(req.body.email)
+        return this.serviceBook.getUserWithEmail(req.body.user.email)
             .then(user => {
                 if (user) {
-                    if (user.userTypeId === 1) {
+                    if (user.userTypeId === 4) {
                         req.body.UserId = user.id;
                         req.body.ModifiedBy = user.id;
                     }
@@ -115,8 +119,49 @@ export class ServiceBookController {
                     return res.status(301).json("User not found");
                 }
                 return this.serviceBook.createScheduleRequestWithAddress(req.body)
-                    .then(request => {
-                        return res.status(200).json(request);
+                    .then(async request => {
+                        if (request) {
+                            return this.serviceBook.getServiceProvider(request.ZipCode)
+                                .then(async (user) => {
+                                    if (user.length > 0) {
+                                        for (let sp in user) {
+                                            serviceProviderList.push(user[sp].email!);
+                                        }
+                                        for (let sp in serviceProviderList) {
+                                            const transporter = nodemailer.createTransport({
+                                                service: process.env.SERVICE,
+                                                auth: {
+                                                    user: process.env.USER,
+                                                    pass: process.env.PASS,
+                                                },
+                                            });
+
+                                            const mailOptions = this.serviceBook.mailData(serviceProviderList[sp]);
+                                            transporter.sendMail(mailOptions, (error, info) => {
+                                                if (error) {
+                                                    res.status(404).json({
+                                                        error: error,
+                                                        message: "Email cannot be sent.."
+                                                    });
+                                                }
+                                            });
+                                        }
+                                        return res.status(200).json({ message: "Booking has been successfully submitted!!" });
+                                    }
+                                    else {
+                                        return res.status(404).json({ message: "User Not Found" });
+                                    }
+                                })
+                                .catch((error: Error) => {
+                                    console.log(error);
+                                    return res.status(500).json({
+                                        error: error,
+                                    });
+                                });
+                            }
+                            else{
+                                return res.status(500).json({ message: "Something went wrong"});
+                            }
                     })
                     .catch((error: Error) => {
                         console.log(error);
@@ -140,9 +185,9 @@ export class ServiceBookController {
                     return res.status(403).json({ msg: "Invalid Token" });
                 }
                 else {
-                    req.body.email = user.userEmail;
+                    req.body.email = user.email;
                     req.body.PostalCode = user.postalcode;
-                    return this.serviceBook.getUserWithEmail(user.userEmail)
+                    return this.serviceBook.getUserWithEmail(user.email)
                         .then(user => {
                             if (user) {
                                 req.body.UserId = user.id;
@@ -180,7 +225,7 @@ export class ServiceBookController {
                     return res.status(403).json({ msg: "Invalid Token" });
                 }
                 else {
-                    return this.serviceBook.getUserWithEmail(user.userEmail)
+                    return this.serviceBook.getUserWithEmail(user.email)
                         .then(userWithEmail => {
                             if (userWithEmail) {
                                 return this.serviceBook.getUserWithAddress(userWithEmail.id)
@@ -233,7 +278,7 @@ export class ServiceBookController {
                 if (error) {
                     return res.status(403).json({ message: "Invalid token" });
                 } else {
-                    return this.serviceBook.getUserWithEmail(user.userEmail)
+                    return this.serviceBook.getUserWithEmail(user.email)
                         .then(user => {
                             if (user === null) {
                                 return res.status(404).json({ message: "user not found" });

@@ -39,4 +39,8 @@ export class ServiceBookRepository {
         return db.UserAddress.findAll({where:{UserId:userId}});
     }
 
+    public async getServiceProvider(zipCode:string): Promise<User[]> {
+        return db.Users.findAll({where:{userTypeId:3, zipCode:zipCode}});
+    }
+
 }

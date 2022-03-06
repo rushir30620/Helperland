@@ -24,6 +24,7 @@ exports.UserSchema = {
                 .description('Last Name of User'),
             email: celebrate_1.Joi.string()
                 .required()
+                .email()
                 .example('abc@gmail.com')
                 .description('Email Id of User'),
             mobile: celebrate_1.Joi.number()

@@ -88,6 +88,7 @@ var ContactUsersController = /** @class */ (function () {
                         return res.status(200).json({ contactUser: contactUser });
                     })
                         .catch(function (error) {
+                        console.log(error);
                         return res.status(500).json({
                             error: error
                         });
