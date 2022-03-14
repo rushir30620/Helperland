@@ -42,6 +42,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CustomerPageController = void 0;
 var bcryptjs_1 = __importDefault(require("bcryptjs"));
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+var nodemailer_1 = __importDefault(require("nodemailer"));
 var models_1 = __importDefault(require("../models"));
 var CustomerPageController = /** @class */ (function () {
     function CustomerPageController(customerPageService) {
@@ -50,7 +51,6 @@ var CustomerPageController = /** @class */ (function () {
         //////////////////////////////// 5.1 Dashboard APIs ///////////////////////////////////////
         this.getServiceRequest = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                console.log(req.body.user);
                 return [2 /*return*/, this.customerPageService.getServiceRequest(req.body.user.id)
                         .then(function (customer) {
                         if (!customer) {
@@ -93,20 +93,153 @@ var CustomerPageController = /** @class */ (function () {
                     })];
             });
         }); };
-        this.rescheduleTimeandDate = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        this.rescheduleTimeandDate = function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
+            var serviceId, isGreater;
+            var _this = this;
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.customerPageService.rescheduleTimeandDate(req.body, +req.params.id)
-                        .then(function (serviceRequest) {
-                        if (!serviceRequest) {
-                            return res.status(404).json({ msg: "Service Request Not Found!!" });
-                        }
-                        else {
-                            return res.status(200).json({ serviceRequest: serviceRequest, msg: "Your Service has been Rescheduled" });
-                        }
-                    })
-                        .catch(function (error) {
-                        return res.status(500).json({ error: error });
-                    })];
+                serviceId = req.params.serviceId;
+                isGreater = this.customerPageService.compareDateWithCurrentDate(req.body.ServiceStartDate);
+                if (isGreater) {
+                    if (req.body.user.userTypeId === 4) {
+                        return [2 /*return*/, this.customerPageService
+                                .getServiceRequestById(parseInt(serviceId))
+                                .then(function (serviceRequest) {
+                                if (serviceRequest) {
+                                    req.body.totalHour =
+                                        serviceRequest.ExtraHours + serviceRequest.ServiceHours;
+                                    req.body.helperId = serviceRequest.ServiceProviderId;
+                                    if (serviceRequest.UserId === req.body.user.id) {
+                                        if (serviceRequest.ServiceProviderId) {
+                                            req.body.spId = serviceRequest.ServiceProviderId;
+                                            return _this.customerPageService
+                                                .getAllServiceRequestOfHelper(serviceRequest.ServiceProviderId)
+                                                .then(function (serviceRequest) { return __awaiter(_this, void 0, void 0, function () {
+                                                var _a, srDate, matched, startTime, endTime;
+                                                return __generator(this, function (_b) {
+                                                    switch (_b.label) {
+                                                        case 0:
+                                                            if (!serviceRequest) return [3 /*break*/, 2];
+                                                            return [4 /*yield*/, this.customerPageService.helperHasFutureSameDateAndTime(req.body.ServiceStartDate, serviceRequest, req.body.totalHour, req.body.ServiceStartTime)];
+                                                        case 1:
+                                                            _a = _b.sent(), srDate = _a.srDate, matched = _a.matched, startTime = _a.startTime, endTime = _a.endTime;
+                                                            if (matched) {
+                                                                return [2 /*return*/, res.status(200).json({
+                                                                        message: "Another service request has been assigned to the service provider on " + srDate + " from " + startTime +
+                                                                            " to " + endTime + ". Either choose another date or pick up a different time slot.",
+                                                                    })];
+                                                            }
+                                                            else {
+                                                                next();
+                                                            }
+                                                            return [3 /*break*/, 3];
+                                                        case 2:
+                                                            next();
+                                                            _b.label = 3;
+                                                        case 3: return [2 /*return*/];
+                                                    }
+                                                });
+                                            }); })
+                                                .catch(function (error) {
+                                                console.log(error);
+                                                return res.status(500).json({
+                                                    error: error,
+                                                });
+                                            });
+                                        }
+                                        else {
+                                            next();
+                                        }
+                                    }
+                                    else {
+                                        return res.status(404).json({ message: "No data found" });
+                                    }
+                                }
+                                else {
+                                    return res.status(404).json({ message: "Service request not found" });
+                                }
+                            })
+                                .catch(function (error) {
+                                console.log(error);
+                                return res.status(500).json({
+                                    error: error,
+                                });
+                            })];
+                    }
+                    else {
+                        return [2 /*return*/, res.status(401).json({ message: "Unauthorised User" })];
+                    }
+                }
+                else {
+                    return [2 /*return*/, res.status(400).json({ message: "Enter future date for reschedule service request" })];
+                }
+                return [2 /*return*/];
+            });
+        }); };
+        this.rescheduleIfTimeSlotNotConflicts = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var d, date, spId;
+            var _this = this;
+            return __generator(this, function (_a) {
+                d = req.body.ServiceStartDate;
+                date = d.split("-").reverse().join("-");
+                spId = req.body.helperId.spId;
+                if (req.params.serviceId) {
+                    return [2 /*return*/, this.customerPageService
+                            .rescheduleTimeandDate(new Date(date), req.body.time, parseInt(req.params.serviceId))
+                            .then(function (serviceRequest) {
+                            if (serviceRequest.length > 0) {
+                                if (spId) {
+                                    return _this.customerPageService
+                                        .getHelperById(spId)
+                                        .then(function (helper) {
+                                        if (helper === null || helper === void 0 ? void 0 : helper.email) {
+                                            var transporter = nodemailer_1.default.createTransport({
+                                                service: process.env.SERVICE,
+                                                auth: {
+                                                    user: process.env.USER,
+                                                    pass: process.env.PASS,
+                                                },
+                                            });
+                                            var mailOptions = _this.customerPageService.mailData(d, req.body.ServiceStartTime, helper.email, req.params.serviceId);
+                                            transporter.sendMail(mailOptions, function (error, info) {
+                                                if (error) {
+                                                    res.status(404).json({
+                                                        error: error,
+                                                        message: "Email cannot be sent.."
+                                                    });
+                                                }
+                                            });
+                                            return res.status(200).json({
+                                                message: "sevice request reschedule successfully",
+                                            });
+                                        }
+                                        else {
+                                            return res.status(404).json({ message: "helper not found" });
+                                        }
+                                    })
+                                        .catch(function (error) {
+                                        console.log(error);
+                                        return res.status(500).json({
+                                            error: error,
+                                        });
+                                    });
+                                }
+                                return res.status(200).json({ message: "sevice request reschedule successfully" });
+                            }
+                            else {
+                                return res.status(422).json({ message: "error in rescheduling service request" });
+                            }
+                        })
+                            .catch(function (error) {
+                            console.log(error);
+                            return res.status(500).json({
+                                error: error,
+                            });
+                        })];
+                }
+                else {
+                    return [2 /*return*/, res.status(404).json({ message: "service request id not found" })];
+                }
+                return [2 /*return*/];
             });
         }); };
         this.cancelService = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
@@ -154,7 +287,6 @@ var CustomerPageController = /** @class */ (function () {
                                         return [4 /*yield*/, models_1.default.ServiceRequest.update(customerObj, { where: { ServiceRequestId: serviceRequest } })];
                                     case 2:
                                         result = _a.sent();
-                                        console.log(result);
                                         if (result) {
                                             return [2 /*return*/, res.status(200).json({ customerObj: customerObj })];
                                         }
@@ -202,7 +334,6 @@ var CustomerPageController = /** @class */ (function () {
                     return [2 /*return*/, this.customerPageService.getUserWithId(req.body.user.id)
                             .then(function (user) {
                             if (user) {
-                                console.log(user);
                                 if (user.userTypeId === 4) {
                                     req.body.RatingFrom = user.id;
                                 }
@@ -314,7 +445,6 @@ var CustomerPageController = /** @class */ (function () {
                             return res.status(401).json({ msg: "User not found" });
                         }
                         else {
-                            console.log(user);
                             return res.status(200).json({ user: user, msg: "Your detail updated successfully" });
                         }
                     })

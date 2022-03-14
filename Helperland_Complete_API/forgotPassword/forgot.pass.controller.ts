@@ -23,7 +23,6 @@ export class forgotPassController{
                     });
                 };
                 const userId = user.id;
-                console.log(userId);
                 let token = jwt.sign({userId}, process.env.FORGOT_PASS_KEY!,{expiresIn:'20m'});
                 const transporter = nodemailer.createTransport({
                     service: process.env.SERVICE,
@@ -84,7 +83,6 @@ export class forgotPassController{
                     })
                 }
                 const userId: number = decodedToken.userId;
-                console.log(decodedToken);
                 return this.forgotPassService.forgotPassId(userId)
                 .then(async(user) => {
                     if(!user){

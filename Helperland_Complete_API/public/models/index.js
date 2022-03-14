@@ -68,6 +68,7 @@ exports.db.Users.hasMany(exports.db.UserAddress, {
         name: "UserId",
         allowNull: false,
     },
+    as: "UserAddress",
     constraints: true,
     onDelete: "CASCADE",
 });
@@ -76,6 +77,7 @@ exports.db.UserAddress.belongsTo(exports.db.Users, {
         name: "UserId",
         allowNull: false,
     },
+    as: "Users",
     constraints: true,
     onDelete: "CASCADE",
 });
@@ -153,6 +155,16 @@ exports.db.Users.hasMany(exports.db.Rating, {
         name: "RatingFrom",
         allowNull: false
     },
+    as: 'RatingFrom',
+    constraints: true,
+    onDelete: "CASCADE"
+});
+exports.db.Users.hasMany(exports.db.Rating, {
+    foreignKey: {
+        name: "RatingTo",
+        allowNull: false
+    },
+    as: 'RatingTo',
     constraints: true,
     onDelete: "CASCADE"
 });
@@ -161,6 +173,16 @@ exports.db.ServiceRequest.hasOne(exports.db.Rating, {
         name: "ServiceRequestId",
         allowNull: false
     },
+    as: 'SPRating',
+    constraints: true,
+    onDelete: "CASCADE"
+});
+exports.db.Rating.belongsTo(exports.db.ServiceRequest, {
+    foreignKey: {
+        name: "ServiceRequestId",
+        allowNull: false,
+    },
+    as: 'SPRating',
     constraints: true,
     onDelete: "CASCADE"
 });

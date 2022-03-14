@@ -1,8 +1,9 @@
 import { ServiceRequest } from "../models/servicerequest";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { CustomerPageService } from "./customerPages.service";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
 import db from "../models";
 import { Rating } from "../models/rating";
 
@@ -14,7 +15,6 @@ export class CustomerPageController {
     //////////////////////////////// 5.1 Dashboard APIs ///////////////////////////////////////
 
     public getServiceRequest = async (req: Request, res: Response): Promise<Response> => {
-        console.log(req.body.user);
         return this.customerPageService.getServiceRequest(req.body.user.id)
             .then((customer: ServiceRequest[] | null) => {
                 if (!customer) {
@@ -39,7 +39,7 @@ export class CustomerPageController {
                     return this.customerPageService.getServiceRequestById(customer.ServiceRequestId)
                         .then(serviceRequest => {
                             if (+req.params.addressId === serviceRequest?.ServiceRequestId) {
-                                return res.status(200).json({ serviceRequest, customer });
+                                return res.status(200).json({ serviceRequest, customer});
                             }
                             else {
                                 return res.status(404).json({ msg: "No service request found" })
@@ -55,20 +55,141 @@ export class CustomerPageController {
             });
     };
 
-    public rescheduleTimeandDate = async (req: Request, res: Response): Promise<Response> => {
-        return this.customerPageService.rescheduleTimeandDate(req.body, +req.params.id)
+    public rescheduleTimeandDate = async (req: Request, res: Response, next: NextFunction): Promise<Response | undefined> => {
+        const serviceId = req.params.serviceId;
+        const isGreater = this.customerPageService.compareDateWithCurrentDate(req.body.ServiceStartDate);
+        if (isGreater) {
+          if (req.body.user.userTypeId === 4) {
+            return this.customerPageService
+              .getServiceRequestById(parseInt(serviceId))
+              .then((serviceRequest) => {
+                if (serviceRequest) {
+                  req.body.totalHour =
+                    serviceRequest.ExtraHours + serviceRequest.ServiceHours;
+                  req.body.helperId = serviceRequest.ServiceProviderId;
+                  if (serviceRequest.UserId === req.body.user.id) {
+                    if (serviceRequest.ServiceProviderId) {
+                      req.body.spId = serviceRequest.ServiceProviderId;
+                      return this.customerPageService
+                        .getAllServiceRequestOfHelper(serviceRequest.ServiceProviderId)
+                        .then(async (serviceRequest) => {
+                          if (serviceRequest) {
+                           
+                            const { srDate, matched, startTime, endTime } =
+                              await this.customerPageService.helperHasFutureSameDateAndTime(
+                                req.body.ServiceStartDate,
+                                serviceRequest,
+                                req.body.totalHour,
+                                req.body.ServiceStartTime
+                              );
+                            if (matched) {
+                              return res.status(200).json({
+                                  message:
+                                    "Another service request has been assigned to the service provider on " + srDate +" from " + startTime +
+                                    " to " + endTime +". Either choose another date or pick up a different time slot.",
+                                });
+                            } else {
+                              next();
+                            }
+                          } else {
+                            next();
+                          }
+                        })
+                        .catch((error: Error) => {
+                          console.log(error);
+                          return res.status(500).json({
+                            error: error,
+                          });
+                        });
+                    } else {
+                      next();
+                    }
+                  } else {
+                    return res.status(404).json({ message: "No data found" });
+                  }
+                } else {
+                  return res.status(404).json({ message: "Service request not found" });
+                }
+              })
+              .catch((error: Error) => {
+                console.log(error);
+                return res.status(500).json({
+                  error: error,
+                });
+              });
+          } else {
+            return res.status(401).json({ message: "Unauthorised User" });
+          }
+        } else {
+          return res.status(400).json({ message: "Enter future date for reschedule service request" });
+        }
+    };
+
+    public rescheduleIfTimeSlotNotConflicts = async (req: Request, res: Response): Promise<Response | void> => {
+        const d: string = req.body.ServiceStartDate;
+        const date = d.split("-").reverse().join("-");
+        const { spId } = req.body.helperId;
+        if (req.params.serviceId) {
+          return this.customerPageService
+            .rescheduleTimeandDate(new Date(date),req.body.time,parseInt(req.params.serviceId))
             .then((serviceRequest) => {
-                if (!serviceRequest) {
-                    return res.status(404).json({ msg: "Service Request Not Found!!" });
+              if (serviceRequest.length > 0) {
+                if (spId) {
+                  return this.customerPageService
+                    .getHelperById(spId)
+                    .then((helper) => {
+                      if (helper?.email) {
+                        const transporter = nodemailer.createTransport({
+                            service: process.env.SERVICE,
+                            auth: {
+                                user: process.env.USER,
+                                pass: process.env.PASS,
+                            },
+                        });
+                        const mailOptions = this.customerPageService.mailData(
+                          d,
+                          req.body.ServiceStartTime,
+                          helper.email,
+                          req.params.serviceId
+                        );
+                        transporter.sendMail(mailOptions, (error, info) => {
+                            if (error) {
+                                res.status(404).json({
+                                    error: error,
+                                    message: "Email cannot be sent.."
+                                });
+                            }
+                        });
+                        return res.status(200).json({
+                            message: "sevice request reschedule successfully",
+                          });
+                      } else {
+                        return res.status(404).json({ message: "helper not found" });
+                      }
+                    })
+                    .catch((error: Error) => {
+                      console.log(error);
+                      return res.status(500).json({
+                        error: error,
+                      });
+                    });
                 }
-                else {
-                    return res.status(200).json({ serviceRequest, msg: "Your Service has been Rescheduled" });
-                }
+                return res.status(200).json({ message: "sevice request reschedule successfully" });
+              } else {
+                return res.status(422).json({ message: "error in rescheduling service request" });
+              }
             })
             .catch((error: Error) => {
-                return res.status(500).json({ error: error });
+              console.log(error);
+              return res.status(500).json({
+                error: error,
+              });
             });
+        } else {
+          return res.status(404).json({ message: "service request id not found" });
+        }
     };
+    
 
     public cancelService = async (req: Request, res: Response): Promise<Response> => {
         const serviceRequest = +req.params.id;
@@ -107,7 +228,7 @@ export class CustomerPageController {
                             ServiceProviderId: customer.ServiceProviderId
                         }
                         const result = await db.ServiceRequest.update(customerObj, { where: { ServiceRequestId: serviceRequest } });
-                        console.log(result);
+                       
                         if (result) {
                             return res.status(200).json({ customerObj });
                         }
@@ -149,7 +270,6 @@ export class CustomerPageController {
             return this.customerPageService.getUserWithId(req.body.user.id)
                 .then((user) => {
                     if (user) {
-                        console.log(user);
                         if (user.userTypeId === 4) {
                             req.body.RatingFrom = user.id;
                         }
@@ -254,7 +374,7 @@ export class CustomerPageController {
                     return res.status(401).json({ msg: "User not found" });
                 }
                 else {
-                    console.log(user);
+                  
                     return res.status(200).json({ user, msg: "Your detail updated successfully" });
                 }
             })

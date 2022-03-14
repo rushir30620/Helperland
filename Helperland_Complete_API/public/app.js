@@ -76,6 +76,7 @@ var contact_routes_1 = __importDefault(require("./routes/contact.routes"));
 var user_routes_1 = __importDefault(require("./routes/user.routes"));
 var serviceRequest_routes_1 = __importDefault(require("./routes/serviceRequest.routes"));
 var customerPage_routes_1 = __importDefault(require("./routes/customerPage.routes"));
+var spPage_routes_1 = __importDefault(require("./routes/spPage.routes"));
 //Parse incoming requests data
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: false }));
@@ -84,6 +85,7 @@ app.use('/', contact_routes_1.default);
 app.use('/', user_routes_1.default);
 app.use('/', serviceRequest_routes_1.default);
 app.use('/', customerPage_routes_1.default);
+app.use('/', spPage_routes_1.default);
 server.listen(port, function () {
     console.log("Server running at http://".concat(hostname, ":").concat(port, "/"));
     models_1.sequelize.authenticate().then(function () { return __awaiter(void 0, void 0, void 0, function () {

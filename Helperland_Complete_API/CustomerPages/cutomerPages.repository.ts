@@ -14,15 +14,28 @@ export class CustomerPageRepository{
     }
 
     public async getServiceAddress(addressId: number): Promise<ServiceRequestAddress | null> {
-        return db.ServiceRequestAddress.findOne({ where: {ServiceRequestId: addressId}});
+        return db.ServiceRequestAddress.findOne({ where: {ServiceRequestId: addressId, Status: [1,2]}});
     }
 
     public async getServiceRequestById(serviceRequestId: number): Promise<ServiceRequest | null> {
-        return db.ServiceRequest.findOne({ where: {ServiceRequestId: serviceRequestId}});
+        return db.ServiceRequest.findOne({ where: {ServiceRequestId: serviceRequestId}, include: ["ServiceRequestAddress", "ExtraService"]});
     }
 
-    public async rescheduleTimeandDate(serviceRequest: ServiceRequest, serviceRequestId: number): Promise<[number, ServiceRequest[]]> {
-        return db.ServiceRequest.update(serviceRequest, { where: { ServiceRequestId: serviceRequestId }});
+    public async rescheduleTimeandDate(date: Date,time: string,serviceId: number): Promise<[number, ServiceRequest[]]> {
+        return db.ServiceRequest.update(
+          { ServiceStartDate: date, ServiceStartTime: time },
+          { where: { ServiceRequestId: serviceId } }
+        );
+    }
+
+    public async getAllServiceRequestOfHelper(helperId: number): Promise<ServiceRequest[] | null> {
+        return db.ServiceRequest.findAll({
+          where: { ServiceProviderId: helperId },
+        });
+    }
+
+    public async getHelperById(helperId:number):Promise<User | null>{
+        return db.Users.findOne({where:{id:helperId, userTypeId:3}});
     }
 
 

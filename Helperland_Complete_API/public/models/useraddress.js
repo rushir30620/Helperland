@@ -32,14 +32,14 @@ exports.UserAddressModelAttributes = {
         primaryKey: true,
         type: sequelize_1.DataTypes.INTEGER
     },
-    // UserId: {
-    //   allowNull: false,
-    //   references: {
-    //     model: 'User',
-    //     key: 'id'
-    //   },
-    //   type: DataTypes.INTEGER
-    // },
+    UserId: {
+        allowNull: false,
+        references: {
+            model: 'User',
+            key: 'id'
+        },
+        type: sequelize_1.DataTypes.INTEGER
+    },
     Addressline1: {
         allowNull: false,
         type: sequelize_1.DataTypes.STRING

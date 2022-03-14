@@ -52,21 +52,37 @@ var CustomerPageRepository = /** @class */ (function () {
     CustomerPageRepository.prototype.getServiceAddress = function (addressId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, index_1.db.ServiceRequestAddress.findOne({ where: { ServiceRequestId: addressId } })];
+                return [2 /*return*/, index_1.db.ServiceRequestAddress.findOne({ where: { ServiceRequestId: addressId, Status: [1, 2] } })];
             });
         });
     };
     CustomerPageRepository.prototype.getServiceRequestById = function (serviceRequestId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, index_1.db.ServiceRequest.findOne({ where: { ServiceRequestId: serviceRequestId } })];
+                return [2 /*return*/, index_1.db.ServiceRequest.findOne({ where: { ServiceRequestId: serviceRequestId }, include: ["ServiceRequestAddress", "ExtraService"] })];
             });
         });
     };
-    CustomerPageRepository.prototype.rescheduleTimeandDate = function (serviceRequest, serviceRequestId) {
+    CustomerPageRepository.prototype.rescheduleTimeandDate = function (date, time, serviceId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, index_1.db.ServiceRequest.update(serviceRequest, { where: { ServiceRequestId: serviceRequestId } })];
+                return [2 /*return*/, index_1.db.ServiceRequest.update({ ServiceStartDate: date, ServiceStartTime: time }, { where: { ServiceRequestId: serviceId } })];
+            });
+        });
+    };
+    CustomerPageRepository.prototype.getAllServiceRequestOfHelper = function (helperId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, index_1.db.ServiceRequest.findAll({
+                        where: { ServiceProviderId: helperId },
+                    })];
+            });
+        });
+    };
+    CustomerPageRepository.prototype.getHelperById = function (helperId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, index_1.db.Users.findOne({ where: { id: helperId, userTypeId: 3 } })];
             });
         });
     };

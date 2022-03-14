@@ -22,7 +22,7 @@ var RescheduleDateTime = customerPages_model_1.CustomerSchema.RescheduleDateTime
 ////////////////////////////////////////// Dashboard Routes ////////////////////////////////////////////
 router.get('/customer-dashboard', usercontroller.validateTokenMiddleware, customerController.getServiceRequest);
 router.get('/service-details/:addressId', usercontroller.validateTokenMiddleware, customerController.getServiceAddress);
-router.put('/rescheduleDate/:id', (0, celebrate_1.celebrate)(RescheduleDateTime), usercontroller.validateTokenMiddleware, customerController.rescheduleTimeandDate);
+router.post('/rescheduleDate/:serviceId', (0, celebrate_1.celebrate)(RescheduleDateTime), usercontroller.validateTokenMiddleware, customerController.rescheduleTimeandDate, customerController.rescheduleIfTimeSlotNotConflicts);
 router.delete('/cancelService/:id', (0, celebrate_1.celebrate)(CancelServiceRequest), usercontroller.validateTokenMiddleware, customerController.cancelService);
 ///////////////////////////////////////// Service History Routes //////////////////////////////////////
 router.get('/service-history', usercontroller.validateTokenMiddleware, usercontroller.validateTokenMiddleware, customerController.getServiceHistory);

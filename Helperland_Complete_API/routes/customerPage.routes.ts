@@ -24,7 +24,7 @@ const { RescheduleDateTime, CancelServiceRequest, Rating, UpdateUserDetails, Edi
 ////////////////////////////////////////// Dashboard Routes ////////////////////////////////////////////
 router.get('/customer-dashboard',  usercontroller.validateTokenMiddleware, customerController.getServiceRequest);
 router.get('/service-details/:addressId', usercontroller.validateTokenMiddleware, customerController.getServiceAddress);
-router.put('/rescheduleDate/:id', celebrate(RescheduleDateTime), usercontroller.validateTokenMiddleware, customerController.rescheduleTimeandDate);
+router.post('/rescheduleDate/:serviceId', celebrate(RescheduleDateTime), usercontroller.validateTokenMiddleware, customerController.rescheduleTimeandDate, customerController.rescheduleIfTimeSlotNotConflicts);
 router.delete('/cancelService/:id', celebrate(CancelServiceRequest), usercontroller.validateTokenMiddleware, customerController.cancelService);
 
 ///////////////////////////////////////// Service History Routes //////////////////////////////////////

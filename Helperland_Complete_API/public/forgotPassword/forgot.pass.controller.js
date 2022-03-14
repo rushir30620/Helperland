@@ -65,7 +65,6 @@ var forgotPassController = /** @class */ (function () {
                                 }
                                 ;
                                 userId = user.id;
-                                console.log(userId);
                                 token = jsonwebtoken_1.default.sign({ userId: userId }, process.env.FORGOT_PASS_KEY, { expiresIn: '20m' });
                                 transporter = nodemailer_1.default.createTransport({
                                     service: process.env.SERVICE,
@@ -131,7 +130,6 @@ var forgotPassController = /** @class */ (function () {
                                     })];
                             }
                             userId = decodedToken.userId;
-                            console.log(decodedToken);
                             return [2 /*return*/, this.forgotPassService.forgotPassId(userId)
                                     .then(function (user) { return __awaiter(_this, void 0, void 0, function () {
                                     var passMatch, _a;

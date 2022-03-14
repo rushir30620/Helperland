@@ -41,6 +41,7 @@ import router from "./routes/contact.routes";
 import router1 from "./routes/user.routes";
 import router2 from "./routes/serviceRequest.routes";
 import router3 from "./routes/customerPage.routes";
+import router4 from "./routes/spPage.routes";
 
 //Parse incoming requests data
 app.use(bodyParser.json());
@@ -51,6 +52,7 @@ app.use('/', router);
 app.use('/', router1);
 app.use('/', router2);
 app.use('/', router3);
+app.use('/', router4);
 
 server.listen(port, () => {
     console.log(`Server running at http://${hostname}:${port}/`)

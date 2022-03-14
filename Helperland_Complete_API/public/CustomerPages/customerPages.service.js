@@ -35,8 +35,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CustomerPageService = void 0;
+var moment_1 = __importDefault(require("moment"));
 var CustomerPageService = /** @class */ (function () {
     function CustomerPageService(customerPageRepository) {
         this.customerPageRepository = customerPageRepository;
@@ -64,12 +68,104 @@ var CustomerPageService = /** @class */ (function () {
             });
         });
     };
-    CustomerPageService.prototype.rescheduleTimeandDate = function (serviceRequest, serviceRequestId) {
+    CustomerPageService.prototype.rescheduleTimeandDate = function (date, time, serviceId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.customerPageRepository.rescheduleTimeandDate(serviceRequest, serviceRequestId)];
+                return [2 /*return*/, this.customerPageRepository.rescheduleTimeandDate(date, time, serviceId)];
             });
         });
+    };
+    CustomerPageService.prototype.getAllServiceRequestOfHelper = function (helperId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.customerPageRepository.getAllServiceRequestOfHelper(helperId)];
+            });
+        });
+    };
+    ;
+    CustomerPageService.prototype.getHelperById = function (helperId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.customerPageRepository.getHelperById(helperId)];
+            });
+        });
+    };
+    ;
+    CustomerPageService.prototype.compareDateWithCurrentDate = function (date) {
+        var formatedDate1 = new Date(date.split("-").reverse().join("-"));
+        // const oldDate = date.toString().split(" ");
+        var formatedDate2 = new Date((0, moment_1.default)(new Date()).format("YYYY-MM-DD"));
+        if (formatedDate1 > formatedDate2) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+    ;
+    CustomerPageService.prototype.helperHasFutureSameDateAndTime = function (date, serviceRequest, totalHour, time) {
+        var srDate;
+        var startTime;
+        var endTime;
+        var uTime = time.split(":");
+        if (uTime[1] === '30') {
+            uTime[1] = '0.5';
+        }
+        var updatedTime = parseFloat(uTime[0]) + parseFloat(uTime[1]);
+        var enteredDate = new Date(date.split("-").reverse().join("-"));
+        var matched;
+        for (var count in serviceRequest) {
+            if (new Date(serviceRequest[count].ServiceStartDate) > enteredDate) {
+                matched = false;
+            }
+            else if (new Date(serviceRequest[count].ServiceStartDate) < enteredDate) {
+                matched = false;
+            }
+            else {
+                var sTime = serviceRequest[count].ServiceStartTime.toString().split(":");
+                if (sTime[1] === '30') {
+                    sTime[1] = '0.5';
+                }
+                var availStartTime = parseFloat(sTime[0]) + parseFloat(sTime[1]);
+                var availTotalHour = serviceRequest[count].ServiceHours + serviceRequest[count].ExtraHours;
+                if (updatedTime + totalHour < availStartTime ||
+                    availStartTime + availTotalHour < updatedTime) {
+                    matched = false;
+                }
+                else {
+                    srDate = serviceRequest[count].ServiceStartDate.toString().split("-").reverse().join("-");
+                    var srTime = availStartTime.toString().split('.');
+                    if (srTime[1] === '5') {
+                        srTime[1] = '30';
+                    }
+                    else {
+                        srTime[1] = '00';
+                    }
+                    startTime = srTime.join(':');
+                    var eTime = (availStartTime + availTotalHour).toString().split('.');
+                    if (parseInt(eTime[1]) === 5) {
+                        eTime[1] = '30';
+                    }
+                    else {
+                        eTime[1] = '00';
+                    }
+                    endTime = eTime.join(':');
+                    matched = true;
+                    break;
+                }
+            }
+        }
+        return { matched: matched, srDate: srDate, startTime: startTime, endTime: endTime };
+    };
+    ;
+    CustomerPageService.prototype.mailData = function (userEmail, date, time, serviceRequestId) {
+        var mailOptions = {
+            from: process.env.USER,
+            to: userEmail,
+            subject: 'About rescheduled service request assigned to you',
+            html: "\n            <h1>\u201CService Request ".concat(serviceRequestId, " has been rescheduled by customer. New date and time are ").concat(date, " ").concat(time, "\u201D.</h1>\n            ")
+        };
+        return mailOptions;
     };
     //////////////////////////////// 5.2 Service History APIs ///////////////////////////////////////
     CustomerPageService.prototype.getServiceHistory = function (userId) {

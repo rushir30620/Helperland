@@ -4,7 +4,7 @@ export class UserAddress extends Model {
 
   AddressId!: number;
 
-  // UserId!: number;
+  UserId!: number;
 
   Addressline1!: string;
 
@@ -32,14 +32,14 @@ export const UserAddressModelAttributes: ModelAttributes = {
     primaryKey: true,
     type: DataTypes.INTEGER
   },
-  // UserId: {
-  //   allowNull: false,
-  //   references: {
-  //     model: 'User',
-  //     key: 'id'
-  //   },
-  //   type: DataTypes.INTEGER
-  // },
+  UserId: {
+    allowNull: false,
+    references: {
+      model: 'User',
+      key: 'id'
+    },
+    type: DataTypes.INTEGER
+  },
   Addressline1: {
     allowNull: false,
     type: DataTypes.STRING

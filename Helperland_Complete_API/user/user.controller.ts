@@ -127,7 +127,8 @@ export class UserController{
                             firstName: user.firstName,
                             lastName: user.lastName,
                             email: user.email,
-                            mobile: user.mobile
+                            mobile: user.mobile,
+                            userTypeId: user.userTypeId,
                         };
                         console.log(user);
                         const token = jwt.sign(userObj,process.env.JWT_KEY!,{expiresIn:'2h'});
