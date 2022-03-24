@@ -44,7 +44,7 @@ module.exports = {
         type: Sequelize.BOOLEAN
       },
       Mobile: {
-        type: Sequelize.BIGINT
+        type: Sequelize.STRING
       },
       Email: {
         type: Sequelize.STRING

@@ -26,10 +26,10 @@ exports.ServiceProviderSchema = {
                 .required()
                 .example('abc@gmail.com')
                 .description('Email Id of User'),
-            mobile: celebrate_1.Joi.number()
-                .integer()
+            mobile: celebrate_1.Joi.string()
                 .required()
-                .example(1234567890)
+                .length(10)
+                .example('1234567890')
                 .description('Mobile number user'),
             zipCode: celebrate_1.Joi.number()
                 .integer()

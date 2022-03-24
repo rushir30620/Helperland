@@ -105,6 +105,8 @@ const forgotcontroller: forgotPassController = new forgotPassController(forgotse
  *  post:
  *   summary: Customer Sign-up
  *   description: User registration
+ *   tags: 
+ *    - Authentication API
  *   requestBody:
  *    content:
  *     application/json:
@@ -128,6 +130,8 @@ router.get('/verify/user/:token', usercontroller.verifyEmail);
  *  post:
  *   summary: User Login
  *   description: Login
+ *   tags: 
+ *    - Authentication API
  *   requestBody:
  *    content:
  *     application/json:
@@ -154,6 +158,8 @@ router.delete('/logout', usercontroller.deleteToken);
  *  post:
  *   summary: Helper Signup
  *   description: Helper registration
+ *   tags: 
+ *    - Authentication API
  *   requestBody:
  *    content:
  *     application/json:
@@ -182,6 +188,8 @@ router.delete('/logout-helper', helpercontroller.deleteToken);
  *  post:
  *   summary: Forgot Password
  *   description: Enter your email ID
+ *   tags: 
+ *    - Authentication API
  *   requestBody:
  *    content:
  *     application/json:
@@ -203,6 +211,8 @@ router.post('/forgotPassword', celebrate(addForgotPass), forgotcontroller.forgot
  *  post:
  *   summary: Reset Password
  *   description: Enter new password
+ *   tags: 
+ *    - Authentication API
  *   requestBody:
  *    content:
  *     application/json:

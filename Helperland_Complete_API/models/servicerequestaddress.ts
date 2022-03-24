@@ -45,7 +45,7 @@ export const ServiceRequestAddressModelAttributes:ModelAttributes = {
         type: DataTypes.STRING
       },
       Mobile: {
-        type: DataTypes.INTEGER
+        type: DataTypes.STRING
       },
       Email: {
         type: DataTypes.STRING

@@ -74,6 +74,8 @@ exports.ServiceBookSchema = {
                 .required()
                 .example('true'),
             Mobile: celebrate_1.Joi.string()
+                .required()
+                .length(10)
                 .example('9512617297')
                 .description('Mobile number')
         })

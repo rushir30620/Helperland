@@ -154,6 +154,8 @@ router.put('/changePassword', celebrate(ChangePassword), usercontroller.validate
  *  get:
  *   summary: Get service request
  *   description: get service request
+ *   tags: 
+ *    - Customer Dashboard Page
  *   parameters:
  *    - in: header
  *      name: auth
@@ -178,6 +180,8 @@ router.put('/changePassword', celebrate(ChangePassword), usercontroller.validate
  *  get:
  *   summary: Get service request details
  *   description: get service request details
+ *   tags: 
+ *    - Customer Dashboard Page
  *   parameters:
  *    - in: header
  *      name: auth
@@ -205,6 +209,8 @@ router.put('/changePassword', celebrate(ChangePassword), usercontroller.validate
  *  put:
  *   summary: update reschedule date and time
  *   description: update reschedule date and time
+ *   tags: 
+ *    - Customer Dashboard Page
  *   consumes:
  *    - application/json
  *   produces:
@@ -235,9 +241,11 @@ router.put('/changePassword', celebrate(ChangePassword), usercontroller.validate
 /**
  * @swagger
  * /cancelService/{id}:
- *  post:
+ *  delete:
  *   summary: Cancel Service request
  *   description: feedback
+ *   tags: 
+ *    - Customer Dashboard Page
  *   parameters:
  *    - in: header
  *      name: auth
@@ -271,7 +279,9 @@ router.put('/changePassword', celebrate(ChangePassword), usercontroller.validate
  * /service-history:
  *  get:
  *   summary: Service history
- *   description: Service history
+ *   description: Service history 
+ *   tags: 
+ *    - Customer Dashboard Page
  *   parameters:
  *    - in: header
  *      name: auth
@@ -293,7 +303,9 @@ router.put('/changePassword', celebrate(ChangePassword), usercontroller.validate
  * /rateSP/{serviceRequestId}:
  *  post:
  *   summary: Service Provider Rating 
- *   description: service provider rating
+ *   description: service provider rating 
+ *   tags: 
+ *    - Customer Dashboard Page
  *   parameters:
  *    - in: header
  *      name: auth
@@ -329,6 +341,8 @@ router.put('/changePassword', celebrate(ChangePassword), usercontroller.validate
  *  get:
  *   summary: user details
  *   description:  user details.
+ *   tags: 
+ *    - Customer Dashboard Page
  *   parameters:
  *    - in: header
  *      name: auth
@@ -351,6 +365,8 @@ router.put('/changePassword', celebrate(ChangePassword), usercontroller.validate
  *  put:
  *   summary: Update User detail
  *   description: update user details.
+ *   tags: 
+ *    - Customer Dashboard Page
  *   parameters:
  *    - in: header
  *      name: auth
@@ -379,6 +395,8 @@ router.put('/changePassword', celebrate(ChangePassword), usercontroller.validate
  *  get:
  *   summary: User addresses
  *   description: Display user addresses.
+ *   tags: 
+ *    - Customer Dashboard Page
  *   parameters:
  *    - in: header
  *      name: auth
@@ -402,6 +420,8 @@ router.put('/changePassword', celebrate(ChangePassword), usercontroller.validate
  *  put:
  *   summary: update or edit user address
  *   description: update or edit user address
+ *   tags: 
+ *    - Customer Dashboard Page
  *   parameters:
  *    - in: header
  *      name: auth
@@ -434,6 +454,8 @@ router.put('/changePassword', celebrate(ChangePassword), usercontroller.validate
  *  post:
  *   summary: Create address
  *   description: add new address
+ *   tags: 
+ *    - Customer Dashboard Page
  *   parameters:
  *    - in: header
  *      name: auth
@@ -460,6 +482,8 @@ router.put('/changePassword', celebrate(ChangePassword), usercontroller.validate
  *  put:
  *   summary: Delete existing address
  *   description: delete address.
+ *   tags: 
+ *    - Customer Dashboard Page
  *   parameters:
  *    - in: header
  *      name: auth
@@ -485,6 +509,8 @@ router.put('/changePassword', celebrate(ChangePassword), usercontroller.validate
  *  put:
  *   summary: change user password
  *   description: please enter old and new password
+ *   tags: 
+ *    - Customer Dashboard Page
  *   parameters:
  *    - in: header
  *      name: auth

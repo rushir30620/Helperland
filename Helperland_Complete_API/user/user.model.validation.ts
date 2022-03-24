@@ -26,10 +26,10 @@ export const UserSchema = {
                 .email()
                 .example('abc@gmail.com')
                 .description('Email Id of User'),
-            mobile: Joi.number()
-                .integer()
+            mobile: Joi.string()
                 .required()
-                .example(1234567890)
+                .length(10)
+                .example('1234567890')
                 .description('Mobile number user'),
             password: Joi.string()
                 .required()

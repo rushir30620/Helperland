@@ -84,10 +84,10 @@ var SPPageRepository = /** @class */ (function () {
             });
         });
     };
-    SPPageRepository.prototype.getServiceRequestByZipcode = function (zipCode) {
+    SPPageRepository.prototype.getServiceRequestByZipcode = function (zipcode) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, index_1.db.ServiceRequest.findAll({ where: { ZipCode: zipCode, Status: 1 } })];
+                return [2 /*return*/, index_1.db.ServiceRequest.findAll({ where: { ZipCode: "361210", Status: 1 } })];
             });
         });
     };
@@ -102,7 +102,7 @@ var SPPageRepository = /** @class */ (function () {
     SPPageRepository.prototype.getUpcomingService = function (spId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, index_1.db.ServiceRequest.findAll({ where: { ServiceRequestId: spId, Status: 2 } })];
+                return [2 /*return*/, index_1.db.ServiceRequest.findAll({ where: { ServiceProviderId: spId, Status: 2 } })];
             });
         });
     };
@@ -189,18 +189,47 @@ var SPPageRepository = /** @class */ (function () {
     SPPageRepository.prototype.updateMyDetails = function (sp, userId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, index_1.db.Users.update(sp, { where: { id: userId } })];
+                return [2 /*return*/, index_1.db.Users.update({
+                        firstName: sp.firstName,
+                        lastName: sp.lastName,
+                        mobile: sp.mobile,
+                        dateOfBirth: sp.dateOfBirth,
+                        nationalityId: sp.nationalityId,
+                        gender: sp.gender,
+                        ModifiedBy: userId,
+                        zipCode: sp.userAddress.PostalCode
+                    }, { where: { id: userId } })];
             });
         });
     };
-    SPPageRepository.prototype.updateMyAddress = function (address, addressId) {
+    SPPageRepository.prototype.updateAddMyAddress = function (address, addressId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, index_1.db.UserAddress.update(address, { where: { AddressId: addressId } })];
+                return [2 /*return*/, index_1.db.UserAddress.update({
+                        Addressline1: address.userAddress.StreetName,
+                        Addressline2: address.userAddress.HouseNumber,
+                        PostalCode: address.userAddress.PostalCode,
+                        City: address.userAddress.City
+                    }, { where: { AddressId: addressId } })];
             });
         });
     };
-    SPPageRepository.prototype.changePassword = function (password, userId) {
+    SPPageRepository.prototype.createNewAddress = function (userId, userAddress) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, index_1.db.UserAddress.create({
+                        Addressline1: userAddress.userAddress.StreetName,
+                        Addressline2: userAddress.userAddress.HouseNumber,
+                        PostalCode: userAddress.userAddress.PostalCode,
+                        City: userAddress.userAddress.City,
+                        IsDefault: true,
+                        IsDeleted: false,
+                        UserId: userId
+                    })];
+            });
+        });
+    };
+    SPPageRepository.prototype.changeSPPassword = function (password, userId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, index_1.db.Users.update({ password: password }, { where: { id: userId } })];

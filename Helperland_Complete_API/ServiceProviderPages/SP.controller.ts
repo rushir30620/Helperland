@@ -8,6 +8,7 @@ import db from "../models";
 import { Rating } from "../models/rating";
 import { ServiceRequestAddress } from "../models/servicerequestaddress";
 import moment from "moment";
+import exceljs from "exceljs";
 
 export class SPPageController {
     public constructor(private readonly spPageService: SPPageService) {
@@ -22,30 +23,30 @@ export class SPPageController {
                 return this.spPageService.getSPDetailById(req.body.user.id)
                     .then((sp) => {
                         if (sp) {
-                            console.log(sp.zipCode);
+
                             if (sp.zipCode == null) {
-                                return res.status(404).json({ message: "Zipcode not found!! Please add zipCode in your profile"});
-                            } 
+                                return res.status(404).json({ message: "Zipcode not found!! Please add zipCode in your profile" });
+                            }
                             else {
-                                console.log("hello");
-                                return this.spPageService.getServiceRequestByZipcode(sp.zipCode!, req.body.user.id)
+
+                                const zipcode: string = sp.zipCode;
+                                return this.spPageService.getServiceRequestByZipcode(sp.zipCode, req.body.user.id)
                                     .then(async (serviceRequests) => {
-                                        console.log(serviceRequests);
-                                        if (serviceRequests) {
-                                            console.log("hellog");
+                                        if (serviceRequests && serviceRequests.length > 0) {
+
                                             const sRequests = await this.spPageService.filterServiceRequestsCompatibleWithHelper(
-                                                    req.body.PetsAtHome,
-                                                    serviceRequests
-                                                );
+                                                req.body.PetsAtHome,
+                                                serviceRequests
+                                            );
                                             if (sRequests) {
-                                                console.log(sRequests);
+
                                                 const requestDetail = await this.spPageService.displayRequestDetail(sRequests);
                                                 return res.status(200).json(requestDetail);
-                                            } 
-                                            else {
-                                                return res.status(404).json({ message: "service requests not found" });
                                             }
-                                        } 
+                                            else {
+                                                return res.status(401).json({ message: "service requests not found" });
+                                            }
+                                        }
                                         else {
                                             return res.status(404).json({ message: "service requests not found" });
                                         }
@@ -55,7 +56,7 @@ export class SPPageController {
                                         return res.status(500).json({ error: error });
                                     });
                             }
-                        } 
+                        }
                         else {
                             return res.status(404).json({ message: "helper not found" });
                         }
@@ -64,11 +65,11 @@ export class SPPageController {
                         console.log(error);
                         return res.status(500).json({ error: error });
                     });
-            } 
+            }
             else {
                 return res.status(422).json({ message: "helperId not found in request body" });
             }
-        } 
+        }
         else {
             return res.status(401).json({ message: "unauthorised user" });
         }
@@ -116,7 +117,6 @@ export class SPPageController {
 
     public acceptRequest = async (req: Request, res: Response): Promise<Response> => {
         // const serviceRequest = req.params.serviceId;
-        console.log(req.params.serviceRequestId);
         if (req.params.serviceRequestId) {
             return this.spPageService.getServiceRequestById(req.params.serviceRequestId)
                 .then(async (service) => {
@@ -152,7 +152,6 @@ export class SPPageController {
                                                     },
                                                 });
                                                 const data = this.spPageService.mailData(helpers[sp].email!, req.params.serviceId);
-                                                console.log(data);
                                                 transporter.sendMail(data, (error, info) => {
                                                     if (error) {
                                                         res.status(404).json({
@@ -187,7 +186,6 @@ export class SPPageController {
     };
 
     public IsServiceAvailableOrNot = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
-        console.log(req.params.serviceRequestId);
         if (req.params.serviceRequestId) {
             return this.spPageService
                 .getServiceRequestById(req.params.serviceRequestId)
@@ -254,18 +252,17 @@ export class SPPageController {
         if (req.body.user.id && req.body.user.userTypeId === 3) {
             return this.spPageService.getUpcomingService(req.body.user.id)
                 .then((services) => {
-                    const serviceArray:ServiceRequest[] = [];
+                    const serviceArray: ServiceRequest[] = [];
                     const currentDate = new Date(moment(new Date()).format("YYYY-MM-DD"));
                     if (services) {
                         for (let service in services) {
                             let serviceDate = new Date(services[service].ServiceStartDate);
-                            console.log(serviceDate);
-                            if (currentDate < serviceDate) {
+                            if (currentDate > serviceDate) {
                                 continue;
                             }
                             serviceArray.push(services[service]);
                         }
-                        return res.status(200).json({serviceArray});
+                        return res.status(200).json({ serviceArray });
                     }
                     else {
                         return res.status(404).json({ msg: "Upcoming request not found" });
@@ -438,6 +435,89 @@ export class SPPageController {
             .catch((error: Error) => {
                 return res.status(500).json({ error: error });
             });
+    };
+
+    public getServiceHistoryDetail = async (req: Request, res: Response): Promise<Response> => {
+        return this.spPageService.getServiceAddress(+req.params.addressId)
+            .then((address: ServiceRequestAddress | null) => {
+                if (!address) {
+                    return res.status(404).json({ error: "Service Request address not found" });
+                }
+                else {
+                    return this.spPageService.getCustomer(req.body.user.id)
+                        .then((user) => {
+                            if (!user) {
+                                return res.status(201).json({ msg: "User detail not found for this request" });
+                            }
+                            else {
+                                return this.spPageService.getServiceRequest(address.ServiceRequestId)
+                                    .then((customer) => {
+                                        if (!customer) {
+                                            return res.status(201).json({ msg: "No service request found" });
+                                        }
+                                        else {
+                                            return res.status(200).json({ customer });
+                                        }
+                                    })
+                                    .catch((error: Error) => {
+                                        console.log(error);
+                                        return res.status(500).json({ error: error });
+                                    });
+                            }
+                        })
+                        .catch((error: Error) => {
+                            console.log(error);
+                            return res.status(500).json({ error: error });
+                        });
+                }
+            })
+            .catch((error: Error) => {
+                console.log(error);
+                return res.status(500).json({ error: error });
+            });
+    };
+
+    public downloadExcelData = async(req: Request, res: Response):Promise<Response | void> => {
+        let historyData = [];
+        return this.spPageService.getSPServiceHistory(parseInt(req.body.user.id))
+        .then(async historydata => {
+            if(historydata){
+                const checkDate = this.spPageService.compareDateWithCurrentDate(historydata)
+                if(historydata.length > 0){
+                    historyData = await this.spPageService.getExcelDataForExport(checkDate)
+                    let workbook = new exceljs.Workbook();
+                    let worksheet = workbook.addWorksheet("Service Provider history");
+                    worksheet.columns = [
+                        { header: "ServiceId", key:"ServiceId", width: 25},
+                        { header: "StartDate", key:"StartDate", width: 25},
+                        { header: "Customer", key: "Customer", width: 25},
+                        { header: "Payment", key:"Payment", width: 15},
+                    ];
+                    worksheet.addRows(historyData);
+                    res.setHeader(
+                        "Content-Type",
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    );
+                     res.setHeader(
+                        "Content-Disposition",
+                        "attachment; filename=" + "ServiceProviderHistory.xlsx"
+                    ); 
+                    return workbook.xlsx.write(res).then(function(err) {
+                        res.status(200).end();
+                    });
+                }
+                else{
+                    return res.status(404).json({ msg: "History data not found"});
+                }
+            }
+            else{
+                return res.status(402).json(" msg: History data not found ");
+            }
+        })
+        .catch((error: Error) => {
+            console.log(error);
+            return res.status(500).json({error:error});
+        })
     };
 
 
@@ -679,47 +759,74 @@ export class SPPageController {
         }
     };
 
-    public updateMyDetails = async (req: Request, res: Response): Promise<Response> => {
-        return this.spPageService.updateMyDetails(req.body, req.body.user.id)
-            .then((user) => {
-                if (!user) {
-                    return res.status(401).json({ msg: "User not found" });
-                }
-                else {
-                    return this.spPageService.getSPaddress(req.body.user.id)
-                        .then(async userAddress => {
-                            const userAddressObj = {
-                                AddressId: userAddress?.AddressId,
-                                UserId: userAddress?.UserId,
-                                Addressline1: req.body.StreetName,
-                                Addressline2: req.body.HouseNumber,
-                                City: req.body.City,
-                                State: userAddress?.State,
-                                PostalCode: req.body.PostalCode,
-                                IsDefault: userAddress?.IsDefault,
-                                IsDeleted: userAddress?.IsDeleted,
-                                Email: userAddress?.Email,
-                                Mobile: userAddress?.Mobile
-                            }
-                            const result = await db.UserAddress.update(userAddressObj, { where: { UserId: req.body.user.id } })
-                            if (result) {
-                                return res.status(200).json({ userAddressObj, msg: "Your detail updated successfully" });
-                            }
-                            else {
-                                return res.status(404).json({ msg: "User detail not found" });
-                            }
-                        })
-                        .catch((error: Error) => {
-                            return res.status(500).json({ error: error });
-                        });
-                }
-            })
-            .catch((error: Error) => {
-                return res.status(500).json({ error: error });
-            });
+    public updateMyDetails = async (req: Request, res: Response, next: NextFunction): Promise<Response|void> => {
+        if (req.body.user.id) {
+            req.body.dateOfBirth = this.spPageService.convertStringtoDate(req.body.dateOfBirth);
+            return this.spPageService.updateMyDetails(req.body, req.body.user.id)
+                .then((user) => {
+                    if (!user) {
+                        return res.status(401).json({ msg: "Error!! while updating detail" });
+                    }
+                    else {
+                        next();
+                    }
+                })
+                .catch((error: Error) => {
+                    return res.status(500).json({ error: error });
+                });
+        }
+        else {
+            return res.status(400).json({ msg: "User not found" });
+        }
     };
 
-    public changePassword = async (req: Request, res: Response): Promise<Response> => {
+    public updateAddMyAddress = async(req: Request, res: Response, next: NextFunction):Promise<Response> => {
+        const userId = req.body.user.id;
+        if(userId && req.body.user.userTypeId === 3){
+            return this.spPageService.getSPaddress(userId)
+            .then(spAddress => {
+                if(spAddress){
+                    return this.spPageService.updateAddMyAddress(req.body,spAddress.AddressId)
+                    .then(newSPAddress => {
+                        if(newSPAddress){
+                            return res.status(200).json({ msg: "Address Updated"});
+                        }
+                        else{
+                            return res.status(402).json({msg: " Error!! cannot updated your address"});
+                        }
+                    })
+                    .catch((error:Error) => {
+                        console.log(error);
+                        return res.status(500).json({error:error});
+                    });
+                }
+                else{
+                    return this.spPageService.createNewAddress(userId,req.body)
+                    .then(spAddress => {
+                        if(spAddress){
+                            return res.status(200).json({spAddress, msg: "Address added successfully"});
+                        }
+                        else{
+                            return res.status(404).json({msg: "Error!! Cannot create or add address"});
+                        }
+                    })
+                    .catch((error:Error) => {
+                        console.log(error);
+                        return res.status(500).json({error:error});
+                    })
+                }
+            })
+            .catch((error:Error) => {
+                console.log(error);
+                return res.status(500).json({error:error});
+            })
+        }
+        else{
+            return res.status(404).json({msg: "User not found"});
+        }
+    }
+
+    public changeSPPassword = async (req: Request, res: Response): Promise<Response> => {
         return this.spPageService.changePassById(req.body.user.id)
             .then(async (user) => {
                 if (!user) {
@@ -737,7 +844,7 @@ export class SPPageController {
                     }
                     else {
                         user.password = await bcrypt.hash(req.body.newPassword, 10);
-                        return this.spPageService.changePassword(user.password, req.body.user.id)
+                        return this.spPageService.changeSPPassword(user.password, req.body.user.id)
                             .then((user) => {
                                 return res.status(200).json({ msg: "Password change successfully" });
                             })

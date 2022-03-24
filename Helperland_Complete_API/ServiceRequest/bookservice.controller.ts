@@ -24,7 +24,6 @@ export class ServiceBookController {
                     let isPresent = false;
                     if (serviceProviders.length > 0) {
                         for (let sp in serviceProviders) {
-                            // console.log(req.body.postalcode);
                             if (serviceProviders[sp].zipCode == req.body.postalcode) {
                                 isPresent = true;
                             }
@@ -67,12 +66,10 @@ export class ServiceBookController {
                     return res.status(403).json({ msg: "Invalid Token" });
                 }
                 else {
-                    console.log(user);
                     req.body.ZipCode = user.postalcode;
                     req.body.email = user.email;
                     return this.serviceBook.getUserWithEmail(user.email)
                         .then(user => {
-                            // console.log(user?.userTypeId);
                             const abc = user?.userTypeId;
                             console.log(abc);
                             if (abc == 4) {

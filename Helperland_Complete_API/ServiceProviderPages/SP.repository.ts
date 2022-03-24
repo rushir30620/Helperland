@@ -6,6 +6,7 @@ import { Rating } from "../models/rating";
 import { UserAddress } from "../models/useraddress";
 import { stat } from "fs";
 import { FavoriteAndBlocked } from "../models/favoriteandblocked";
+import { updateSPDetail } from "./types";
 
 export class SPPageRepository{
 
@@ -35,8 +36,8 @@ export class SPPageRepository{
         return db.ServiceRequest.findAll({where:{ServiceProviderId:helperId, Status:2}});
     }
 
-    public async getServiceRequestByZipcode(zipCode:number):Promise<ServiceRequest[] | null>{
-        return db.ServiceRequest.findAll({where:{ZipCode:zipCode, Status:1}});
+    public async getServiceRequestByZipcode(zipcode:string):Promise<ServiceRequest[] | null>{
+        return db.ServiceRequest.findAll({where:{ZipCode:"361210", Status:1}});
     }
 
     public async getBlockedUserById(spId:number):Promise<FavoriteAndBlocked[]|null>{
@@ -47,7 +48,7 @@ export class SPPageRepository{
     //////////////////////////// 6.2 Upcoming Service API /////////////////////////
 
     public async getUpcomingService(spId: number): Promise<ServiceRequest[] | null> {
-        return db.ServiceRequest.findAll({where: { ServiceRequestId: spId, Status:2 }});
+        return db.ServiceRequest.findAll({where: { ServiceProviderId: spId, Status:2 }});
     }
 
     public async getServiceRequestwithId(serviceId: number): Promise<ServiceRequest | null> {
@@ -105,15 +106,41 @@ export class SPPageRepository{
         return db.UserAddress.findOne({where:{UserId:userId, IsDeleted:false}, include: ["Users"]});
     }
     
-    public async updateMyDetails(sp: User, userId: number): Promise<[number, User[]]>{
-        return db.Users.update(sp, { where: {id: userId}});
+    public async updateMyDetails(sp: updateSPDetail, userId: number): Promise<[number, User[]]>{
+        return db.Users.update({
+            firstName:sp.firstName,
+            lastName:sp.lastName,
+            mobile:sp.mobile,
+            dateOfBirth:sp.dateOfBirth,
+            nationalityId:sp.nationalityId,
+            gender:sp.gender,
+            ModifiedBy:userId,
+            zipCode:sp.userAddress.PostalCode
+        }, { where: {id: userId}});
     }
 
-    public async updateMyAddress(address: UserAddress, addressId:number): Promise<[number, UserAddress[]]>{
-        return db.UserAddress.update(address,{ where: {AddressId: addressId}});
+    public async updateAddMyAddress(address: updateSPDetail, addressId:number){
+        return db.UserAddress.update({
+            Addressline1:address.userAddress.StreetName,
+            Addressline2:address.userAddress.HouseNumber,
+            PostalCode:address.userAddress.PostalCode,
+            City:address.userAddress.City
+        },{ where: {AddressId: addressId}});
     }
 
-    public async changePassword(password: string, userId: number): Promise<[number, User[]]>{
+    public async createNewAddress(userId:number, userAddress: updateSPDetail){
+        return db.UserAddress.create({
+            Addressline1:userAddress.userAddress.StreetName,
+            Addressline2:userAddress.userAddress.HouseNumber,
+            PostalCode:userAddress.userAddress.PostalCode,
+            City:userAddress.userAddress.City,
+            IsDefault:true,
+            IsDeleted:false,
+            UserId:userId
+        });
+    }
+
+    public async changeSPPassword(password: string, userId: number): Promise<[number, User[]]>{
         return db.Users.update({ password: password }, { where: { id: userId }});
     }
 

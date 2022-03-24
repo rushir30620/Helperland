@@ -56,6 +56,8 @@ const controller: ContactUsersController = new ContactUsersController(service);
   *  post:
   *   summary: create contact user
   *   description: create contact user for the organisation
+  *   tags: 
+ *     - Contact Us API
   *   requestBody:
   *    content:
   *     multipart/form-data:
@@ -76,6 +78,8 @@ router.post('/contactUsers', controller.addContactUsers);
  *  get:
  *   summary: get all Contact Users
  *   description: get all Contact Users
+ *   tags: 
+ *    - Contact Us API
  *   responses:
  *    200:
  *     description: success
@@ -91,6 +95,8 @@ router.get('/contactUsers', controller.getAllContactUsers);
  *  get:
  *   summary: get Contact User
  *   description: get Contact User
+ *   tags: 
+ *    - Contact Us API
  *   parameters:
  *    - in: path
  *      name: contactUsers_id
@@ -114,6 +120,8 @@ router.get('/contactUsers/:id', controller.getContactUsersById);
  *  delete:
  *   summary: Delete contact User
  *   description: Delete Contact User
+ *   tags: 
+ *    - Contact Us API
  *   parameters:
  *    - in: path
  *      name: contactUsers_id

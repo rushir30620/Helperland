@@ -11,7 +11,7 @@ export class User extends Model {
 
     password?: string;
 
-    mobile?: number;
+    mobile?: string;
 
     userTypeId?: number;
 
@@ -23,7 +23,7 @@ export class User extends Model {
 
     worksWithPets?: boolean;
 
-    zipCode?: number;
+    zipCode?: string;
 
     languageId?: number;
 
@@ -58,7 +58,7 @@ export const UserModelAttributes: ModelAttributes = {
         unique: true
     },
     mobile: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.STRING,
         unique: true
     },
     userTypeId: {
@@ -81,7 +81,7 @@ export const UserModelAttributes: ModelAttributes = {
         allowNull: true
     },
     zipCode: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: true
     },
     languageId: {

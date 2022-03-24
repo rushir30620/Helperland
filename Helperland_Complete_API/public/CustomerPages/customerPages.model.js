@@ -49,8 +49,9 @@ exports.CustomerSchema = {
                 .required()
                 .example('Rathod')
                 .description('LastName of user'),
-            mobile: celebrate_1.Joi.number()
+            mobile: celebrate_1.Joi.string()
                 .required()
+                .length(10)
                 .example('9512617297')
                 .description('Phone Number of user'),
             dateOfBirth: celebrate_1.Joi.date()
@@ -81,8 +82,9 @@ exports.CustomerSchema = {
                 .required()
                 .example('Dhrol')
                 .description('City'),
-            Mobile: celebrate_1.Joi.number()
+            Mobile: celebrate_1.Joi.string()
                 .required()
+                .length(10)
                 .example(9512617297)
                 .description('Phone Number of user'),
         })

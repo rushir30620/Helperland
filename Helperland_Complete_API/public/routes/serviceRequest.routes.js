@@ -129,6 +129,8 @@ var usercontroller = new user_controller_1.UserController(userservice);
 *  post:
 *   summary: Check Availibility
 *   description: Enter your area's zipcode
+*   tags:
+*    - Book Service API
 *   requestBody:
 *    content:
 *     application/json:
@@ -152,6 +154,8 @@ router.post('/setup-service', usercontroller.validateTokenMiddleware, bookContro
  *  post:
  *   summary: Schedule service
  *   description: schedule service
+ *   tags:
+ *    - Book Service API
  *   securityDefinitions:
  *    JWT:
  *     schema:
@@ -180,6 +184,8 @@ router.post('/schedule-service', usercontroller.validateTokenMiddleware, bookCon
  *  post:
  *   summary: Add new Address
  *   description: Enter your address
+ *   tags:
+ *    - Book Service API
  *   requestBody:
  *    content:
  *     application/json:
@@ -202,6 +208,8 @@ router.post('/add-new-address', usercontroller.validateTokenMiddleware, bookCont
  *  get:
  *   summary: Get existing user addresses
  *   description: get existing addresses
+ *   tags:
+ *    - Book Service API
  *   responses:
  *    200:
  *     description: User Address found
@@ -219,6 +227,8 @@ router.get('/get-address', usercontroller.validateTokenMiddleware, bookControlle
  *  get:
  *   summary: Get favorite and blocked Service Provider
  *   description: favorite and blocked Service Provider
+ *   tags:
+ *    - Book Service API
  *   responses:
  *    200:
  *     description: Service Provider Found

@@ -45,7 +45,7 @@ var bcryptjs_1 = __importDefault(require("bcryptjs"));
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 var nodemailer_1 = __importDefault(require("nodemailer"));
 require('dotenv').config();
-var userTypeID = 3;
+var userTypeID = 2;
 var ServiceProviderController = /** @class */ (function () {
     function ServiceProviderController(serviceProviderService) {
         var _this = this;

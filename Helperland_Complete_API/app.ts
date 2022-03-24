@@ -31,7 +31,7 @@ const swaggerOptions = {
             servers: ["http://localhost:3000"]
         }
     },
-    apis: ['./routes/contact.routes.ts', './routes/user.routes.ts', './routes/serviceRequest.routes.ts', './routes/customerPage.routes.ts']
+    apis: ['./routes/contact.routes.ts', './routes/user.routes.ts', './routes/serviceRequest.routes.ts', './routes/customerPage.routes.ts', './routes/spPage.routes.ts', './routes/admin.routes.ts']
 }
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
@@ -42,6 +42,7 @@ import router1 from "./routes/user.routes";
 import router2 from "./routes/serviceRequest.routes";
 import router3 from "./routes/customerPage.routes";
 import router4 from "./routes/spPage.routes";
+import router5 from "./routes/admin.routes";
 
 //Parse incoming requests data
 app.use(bodyParser.json());
@@ -53,6 +54,7 @@ app.use('/', router1);
 app.use('/', router2);
 app.use('/', router3);
 app.use('/', router4);
+app.use('/', router5);
 
 server.listen(port, () => {
     console.log(`Server running at http://${hostname}:${port}/`)

@@ -55,8 +55,9 @@ export const CustomerSchema = {
                                 .required()
                                 .example('Rathod')
                                 .description('LastName of user'),
-                        mobile: Joi.number()
+                        mobile: Joi.string()
                                 .required()
+                                .length(10)
                                 .example('9512617297')
                                 .description('Phone Number of user'),
                         dateOfBirth: Joi.date()
@@ -89,8 +90,9 @@ export const CustomerSchema = {
                                 .required()
                                 .example('Dhrol')
                                 .description('City'),
-                        Mobile: Joi.number()
+                        Mobile: Joi.string()
                                 .required()
+                                .length(10)
                                 .example(9512617297)
                                 .description('Phone Number of user'),
 

@@ -90,14 +90,14 @@ var SPPageService = /** @class */ (function () {
             });
         });
     };
-    SPPageService.prototype.getServiceRequestByZipcode = function (zipCode, spId) {
+    SPPageService.prototype.getServiceRequestByZipcode = function (zipcode, spId) {
         return __awaiter(this, void 0, void 0, function () {
             var Request, serviceRequest, blockUser;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         Request = [];
-                        return [4 /*yield*/, this.spPageRepository.getServiceRequestByZipcode(zipCode)];
+                        return [4 /*yield*/, this.spPageRepository.getServiceRequestByZipcode(zipcode)];
                     case 1:
                         serviceRequest = _a.sent();
                         return [4 /*yield*/, this.spPageRepository.getBlockedUserById(parseInt(spId))];
@@ -191,7 +191,7 @@ var SPPageService = /** @class */ (function () {
         var srId;
         var matched = false;
         for (var sr in serviceRequest) {
-            if (serviceRequest[sr].ServiceStartDate === date) {
+            if (serviceRequest[sr].ServiceStartDate.toLocaleDateString() === date.toLocaleDateString()) {
                 var acceptTime = time.toString().split(":");
                 if (acceptTime[1] === "30") {
                     acceptTime[1] = "0.5";
@@ -315,6 +315,39 @@ var SPPageService = /** @class */ (function () {
         }
         return srHistory;
     };
+    SPPageService.prototype.getExcelDataForExport = function (serviceRequest) {
+        return __awaiter(this, void 0, void 0, function () {
+            var historyData, _a, _b, _i, history_1, user;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        historyData = [];
+                        _a = [];
+                        for (_b in serviceRequest)
+                            _a.push(_b);
+                        _i = 0;
+                        _c.label = 1;
+                    case 1:
+                        if (!(_i < _a.length)) return [3 /*break*/, 4];
+                        history_1 = _a[_i];
+                        return [4 /*yield*/, this.spPageRepository.getCustomer(serviceRequest[history_1].UserId)];
+                    case 2:
+                        user = _c.sent();
+                        historyData.push({
+                            ServiceId: serviceRequest[history_1].ServiceRequestId,
+                            StartDate: serviceRequest[history_1].ServiceStartDate,
+                            Customer: (user === null || user === void 0 ? void 0 : user.firstName) + " " + (user === null || user === void 0 ? void 0 : user.lastName),
+                            Payment: serviceRequest[history_1].TotalCost,
+                        });
+                        _c.label = 3;
+                    case 3:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/, historyData];
+                }
+            });
+        });
+    };
     //////////////////////////// 6.7 My settings API /////////////////////////
     SPPageService.prototype.getBlockedUser = function (spId, targetId) {
         return __awaiter(this, void 0, void 0, function () {
@@ -359,17 +392,24 @@ var SPPageService = /** @class */ (function () {
             });
         });
     };
-    SPPageService.prototype.updateMyDetails = function (user, userId) {
+    SPPageService.prototype.updateMyDetails = function (sp, userId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.spPageRepository.updateMyDetails(user, userId)];
+                return [2 /*return*/, this.spPageRepository.updateMyDetails(sp, userId)];
             });
         });
     };
-    SPPageService.prototype.updateMyAddress = function (address, userId) {
+    SPPageService.prototype.updateAddMyAddress = function (address, addressId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.spPageRepository.updateMyAddress(address, userId)];
+                return [2 /*return*/, this.spPageRepository.updateAddMyAddress(address, addressId)];
+            });
+        });
+    };
+    SPPageService.prototype.createNewAddress = function (userId, userAddress) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.spPageRepository.createNewAddress(userId, userAddress)];
             });
         });
     };
@@ -380,12 +420,17 @@ var SPPageService = /** @class */ (function () {
             });
         });
     };
-    SPPageService.prototype.changePassword = function (password, userId) {
+    SPPageService.prototype.changeSPPassword = function (password, userId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.spPageRepository.changePassword(password, userId)];
+                return [2 /*return*/, this.spPageRepository.changeSPPassword(password, userId)];
             });
         });
+    };
+    SPPageService.prototype.convertStringtoDate = function (date) {
+        var updateddate = date.toString().split('-').reverse().join('-');
+        var convertedDate = new Date(updateddate);
+        return convertedDate;
     };
     return SPPageService;
 }());

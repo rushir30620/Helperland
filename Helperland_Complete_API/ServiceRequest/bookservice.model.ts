@@ -75,6 +75,8 @@ export const ServiceBookSchema = {
                 .required()
                 .example('true'),
             Mobile: Joi.string()
+                .required()
+                .length(10)
                 .example('9512617297')
                 .description('Mobile number')
 

@@ -44,6 +44,7 @@ var bcryptjs_1 = __importDefault(require("bcryptjs"));
 var nodemailer_1 = __importDefault(require("nodemailer"));
 var models_1 = __importDefault(require("../models"));
 var moment_1 = __importDefault(require("moment"));
+var exceljs_1 = __importDefault(require("exceljs"));
 var SPPageController = /** @class */ (function () {
     function SPPageController(spPageService) {
         var _this = this;
@@ -57,31 +58,27 @@ var SPPageController = /** @class */ (function () {
                         return [2 /*return*/, this.spPageService.getSPDetailById(req.body.user.id)
                                 .then(function (sp) {
                                 if (sp) {
-                                    console.log(sp.zipCode);
                                     if (sp.zipCode == null) {
                                         return res.status(404).json({ message: "Zipcode not found!! Please add zipCode in your profile" });
                                     }
                                     else {
-                                        console.log("hello");
+                                        var zipcode = sp.zipCode;
                                         return _this.spPageService.getServiceRequestByZipcode(sp.zipCode, req.body.user.id)
                                             .then(function (serviceRequests) { return __awaiter(_this, void 0, void 0, function () {
                                             var sRequests, requestDetail;
                                             return __generator(this, function (_a) {
                                                 switch (_a.label) {
                                                     case 0:
-                                                        console.log(serviceRequests);
-                                                        if (!serviceRequests) return [3 /*break*/, 5];
-                                                        console.log("hellog");
+                                                        if (!(serviceRequests && serviceRequests.length > 0)) return [3 /*break*/, 5];
                                                         return [4 /*yield*/, this.spPageService.filterServiceRequestsCompatibleWithHelper(req.body.PetsAtHome, serviceRequests)];
                                                     case 1:
                                                         sRequests = _a.sent();
                                                         if (!sRequests) return [3 /*break*/, 3];
-                                                        console.log(sRequests);
                                                         return [4 /*yield*/, this.spPageService.displayRequestDetail(sRequests)];
                                                     case 2:
                                                         requestDetail = _a.sent();
                                                         return [2 /*return*/, res.status(200).json(requestDetail)];
-                                                    case 3: return [2 /*return*/, res.status(404).json({ message: "service requests not found" })];
+                                                    case 3: return [2 /*return*/, res.status(401).json({ message: "service requests not found" })];
                                                     case 4: return [3 /*break*/, 6];
                                                     case 5: return [2 /*return*/, res.status(404).json({ message: "service requests not found" })];
                                                     case 6: return [2 /*return*/];
@@ -159,7 +156,6 @@ var SPPageController = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 // const serviceRequest = req.params.serviceId;
-                console.log(req.params.serviceRequestId);
                 if (req.params.serviceRequestId) {
                     return [2 /*return*/, this.spPageService.getServiceRequestById(req.params.serviceRequestId)
                             .then(function (service) { return __awaiter(_this, void 0, void 0, function () {
@@ -200,7 +196,6 @@ var SPPageController = /** @class */ (function () {
                                                                 },
                                                             });
                                                             var data = _this.spPageService.mailData(helpers[sp].email, req.params.serviceId);
-                                                            console.log(data);
                                                             transporter.sendMail(data, function (error, info) {
                                                                 if (error) {
                                                                     res.status(404).json({
@@ -241,7 +236,6 @@ var SPPageController = /** @class */ (function () {
         this.IsServiceAvailableOrNot = function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
-                console.log(req.params.serviceRequestId);
                 if (req.params.serviceRequestId) {
                     return [2 /*return*/, this.spPageService
                             .getServiceRequestById(req.params.serviceRequestId)
@@ -314,8 +308,7 @@ var SPPageController = /** @class */ (function () {
                             if (services) {
                                 for (var service in services) {
                                     var serviceDate = new Date(services[service].ServiceStartDate);
-                                    console.log(serviceDate);
-                                    if (currentDate < serviceDate) {
+                                    if (currentDate > serviceDate) {
                                         continue;
                                     }
                                     serviceArray.push(services[service]);
@@ -522,6 +515,92 @@ var SPPageController = /** @class */ (function () {
                         });
                     }); })
                         .catch(function (error) {
+                        return res.status(500).json({ error: error });
+                    })];
+            });
+        }); };
+        this.getServiceHistoryDetail = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.spPageService.getServiceAddress(+req.params.addressId)
+                        .then(function (address) {
+                        if (!address) {
+                            return res.status(404).json({ error: "Service Request address not found" });
+                        }
+                        else {
+                            return _this.spPageService.getCustomer(req.body.user.id)
+                                .then(function (user) {
+                                if (!user) {
+                                    return res.status(201).json({ msg: "User detail not found for this request" });
+                                }
+                                else {
+                                    return _this.spPageService.getServiceRequest(address.ServiceRequestId)
+                                        .then(function (customer) {
+                                        if (!customer) {
+                                            return res.status(201).json({ msg: "No service request found" });
+                                        }
+                                        else {
+                                            return res.status(200).json({ customer: customer });
+                                        }
+                                    })
+                                        .catch(function (error) {
+                                        console.log(error);
+                                        return res.status(500).json({ error: error });
+                                    });
+                                }
+                            })
+                                .catch(function (error) {
+                                console.log(error);
+                                return res.status(500).json({ error: error });
+                            });
+                        }
+                    })
+                        .catch(function (error) {
+                        console.log(error);
+                        return res.status(500).json({ error: error });
+                    })];
+            });
+        }); };
+        this.downloadExcelData = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var historyData;
+            var _this = this;
+            return __generator(this, function (_a) {
+                historyData = [];
+                return [2 /*return*/, this.spPageService.getSPServiceHistory(parseInt(req.body.user.id))
+                        .then(function (historydata) { return __awaiter(_this, void 0, void 0, function () {
+                        var checkDate, workbook, worksheet;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    if (!historydata) return [3 /*break*/, 4];
+                                    checkDate = this.spPageService.compareDateWithCurrentDate(historydata);
+                                    if (!(historydata.length > 0)) return [3 /*break*/, 2];
+                                    return [4 /*yield*/, this.spPageService.getExcelDataForExport(checkDate)];
+                                case 1:
+                                    historyData = _a.sent();
+                                    workbook = new exceljs_1.default.Workbook();
+                                    worksheet = workbook.addWorksheet("Service Provider history");
+                                    worksheet.columns = [
+                                        { header: "ServiceId", key: "ServiceId", width: 25 },
+                                        { header: "StartDate", key: "StartDate", width: 25 },
+                                        { header: "Customer", key: "Customer", width: 25 },
+                                        { header: "Payment", key: "Payment", width: 15 },
+                                    ];
+                                    worksheet.addRows(historyData);
+                                    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                                    res.setHeader("Content-Disposition", "attachment; filename=" + "ServiceProviderHistory.xlsx");
+                                    return [2 /*return*/, workbook.xlsx.write(res).then(function (err) {
+                                            res.status(200).end();
+                                        })];
+                                case 2: return [2 /*return*/, res.status(404).json({ msg: "History data not found" })];
+                                case 3: return [3 /*break*/, 5];
+                                case 4: return [2 /*return*/, res.status(402).json(" msg: History data not found ")];
+                                case 5: return [2 /*return*/];
+                            }
+                        });
+                    }); })
+                        .catch(function (error) {
+                        console.log(error);
                         return res.status(500).json({ error: error });
                     })];
             });
@@ -831,58 +910,80 @@ var SPPageController = /** @class */ (function () {
                 return [2 /*return*/];
             });
         }); };
-        this.updateMyDetails = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var _this = this;
+        this.updateMyDetails = function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.spPageService.updateMyDetails(req.body, req.body.user.id)
-                        .then(function (user) {
-                        if (!user) {
-                            return res.status(401).json({ msg: "User not found" });
-                        }
-                        else {
-                            return _this.spPageService.getSPaddress(req.body.user.id)
-                                .then(function (userAddress) { return __awaiter(_this, void 0, void 0, function () {
-                                var userAddressObj, result;
-                                return __generator(this, function (_a) {
-                                    switch (_a.label) {
-                                        case 0:
-                                            userAddressObj = {
-                                                AddressId: userAddress === null || userAddress === void 0 ? void 0 : userAddress.AddressId,
-                                                UserId: userAddress === null || userAddress === void 0 ? void 0 : userAddress.UserId,
-                                                Addressline1: req.body.StreetName,
-                                                Addressline2: req.body.HouseNumber,
-                                                City: req.body.City,
-                                                State: userAddress === null || userAddress === void 0 ? void 0 : userAddress.State,
-                                                PostalCode: req.body.PostalCode,
-                                                IsDefault: userAddress === null || userAddress === void 0 ? void 0 : userAddress.IsDefault,
-                                                IsDeleted: userAddress === null || userAddress === void 0 ? void 0 : userAddress.IsDeleted,
-                                                Email: userAddress === null || userAddress === void 0 ? void 0 : userAddress.Email,
-                                                Mobile: userAddress === null || userAddress === void 0 ? void 0 : userAddress.Mobile
-                                            };
-                                            return [4 /*yield*/, models_1.default.UserAddress.update(userAddressObj, { where: { UserId: req.body.user.id } })];
-                                        case 1:
-                                            result = _a.sent();
-                                            if (result) {
-                                                return [2 /*return*/, res.status(200).json({ userAddressObj: userAddressObj, msg: "Your detail updated successfully" })];
-                                            }
-                                            else {
-                                                return [2 /*return*/, res.status(404).json({ msg: "User detail not found" })];
-                                            }
-                                            return [2 /*return*/];
-                                    }
-                                });
-                            }); })
-                                .catch(function (error) {
-                                return res.status(500).json({ error: error });
-                            });
-                        }
-                    })
-                        .catch(function (error) {
-                        return res.status(500).json({ error: error });
-                    })];
+                if (req.body.user.id) {
+                    req.body.dateOfBirth = this.spPageService.convertStringtoDate(req.body.dateOfBirth);
+                    return [2 /*return*/, this.spPageService.updateMyDetails(req.body, req.body.user.id)
+                            .then(function (user) {
+                            if (!user) {
+                                return res.status(401).json({ msg: "Error!! while updating detail" });
+                            }
+                            else {
+                                next();
+                            }
+                        })
+                            .catch(function (error) {
+                            return res.status(500).json({ error: error });
+                        })];
+                }
+                else {
+                    return [2 /*return*/, res.status(400).json({ msg: "User not found" })];
+                }
+                return [2 /*return*/];
             });
         }); };
-        this.changePassword = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        this.updateAddMyAddress = function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
+            var userId;
+            var _this = this;
+            return __generator(this, function (_a) {
+                userId = req.body.user.id;
+                if (userId && req.body.user.userTypeId === 3) {
+                    return [2 /*return*/, this.spPageService.getSPaddress(userId)
+                            .then(function (spAddress) {
+                            if (spAddress) {
+                                return _this.spPageService.updateAddMyAddress(req.body, spAddress.AddressId)
+                                    .then(function (newSPAddress) {
+                                    if (newSPAddress) {
+                                        return res.status(200).json({ msg: "Address Updated" });
+                                    }
+                                    else {
+                                        return res.status(402).json({ msg: " Error!! cannot updated your address" });
+                                    }
+                                })
+                                    .catch(function (error) {
+                                    console.log(error);
+                                    return res.status(500).json({ error: error });
+                                });
+                            }
+                            else {
+                                return _this.spPageService.createNewAddress(userId, req.body)
+                                    .then(function (spAddress) {
+                                    if (spAddress) {
+                                        return res.status(200).json({ spAddress: spAddress, msg: "Address added successfully" });
+                                    }
+                                    else {
+                                        return res.status(404).json({ msg: "Error!! Cannot create or add address" });
+                                    }
+                                })
+                                    .catch(function (error) {
+                                    console.log(error);
+                                    return res.status(500).json({ error: error });
+                                });
+                            }
+                        })
+                            .catch(function (error) {
+                            console.log(error);
+                            return res.status(500).json({ error: error });
+                        })];
+                }
+                else {
+                    return [2 /*return*/, res.status(404).json({ msg: "User not found" })];
+                }
+                return [2 /*return*/];
+            });
+        }); };
+        this.changeSPPassword = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
                 return [2 /*return*/, this.spPageService.changePassById(req.body.user.id)
@@ -910,7 +1011,7 @@ var SPPageController = /** @class */ (function () {
                                     return [4 /*yield*/, bcryptjs_1.default.hash(req.body.newPassword, 10)];
                                 case 4:
                                     _a.password = _b.sent();
-                                    return [2 /*return*/, this.spPageService.changePassword(user.password, req.body.user.id)
+                                    return [2 /*return*/, this.spPageService.changeSPPassword(user.password, req.body.user.id)
                                             .then(function (user) {
                                             return res.status(200).json({ msg: "Password change successfully" });
                                         })

@@ -7,6 +7,7 @@ import { User } from "../models/user";
 import { UserAddress } from "../models/useraddress";
 import { SPPageRepository } from "./SP.repository";
 import db from "../models";
+import { updateSPDetail } from "./types";
 
 export class SPPageService {
   public constructor(private readonly spPageRepository: SPPageRepository) {
@@ -39,9 +40,9 @@ export class SPPageService {
     return this.spPageRepository.getAllServiceRequestsOfHelper(parseInt(helperId));
   }
 
-  public async getServiceRequestByZipcode(zipCode: number, spId: string): Promise<ServiceRequest[] | null> {
+  public async getServiceRequestByZipcode(zipcode: string, spId: string): Promise<ServiceRequest[] | null> {
     let Request: ServiceRequest[] = [];
-    const serviceRequest = await this.spPageRepository.getServiceRequestByZipcode(zipCode);
+    const serviceRequest = await this.spPageRepository.getServiceRequestByZipcode(zipcode);
 
     const blockUser = await this.spPageRepository.getBlockedUserById(parseInt(spId));
 
@@ -115,7 +116,7 @@ export class SPPageService {
     let srId;
     let matched = false;
     for (let sr in serviceRequest) {
-      if (serviceRequest[sr].ServiceStartDate === date) {
+      if (serviceRequest[sr].ServiceStartDate.toLocaleDateString() === date.toLocaleDateString()) {
         const acceptTime = time.toString().split(":");
         if (acceptTime[1] === "30") {
           acceptTime[1] = "0.5";
@@ -233,6 +234,20 @@ export class SPPageService {
     return srHistory;
   }
 
+  public async getExcelDataForExport(serviceRequest: ServiceRequest[]): Promise<Object[]>{
+    let historyData: Object[] = [];
+    for (let history in serviceRequest) {
+      let user = await this.spPageRepository.getCustomer(serviceRequest[history].UserId);
+      historyData.push({
+        ServiceId: serviceRequest[history].ServiceRequestId,
+        StartDate: serviceRequest[history].ServiceStartDate,
+        Customer: user?.firstName! + " " + user?.lastName!,
+        Payment: serviceRequest[history].TotalCost,
+      });
+    }
+    return historyData;
+  }
+
   
 
   //////////////////////////// 6.7 My settings API /////////////////////////
@@ -264,19 +279,29 @@ export class SPPageService {
     return this.spPageRepository.getSPaddress(userId);
   }
 
-  public async updateMyDetails(user: User, userId: number): Promise<[number, User[]]> {
-    return this.spPageRepository.updateMyDetails(user, userId);
+  public async updateMyDetails(sp: updateSPDetail, userId: number): Promise<[number, User[]]> {
+    return this.spPageRepository.updateMyDetails(sp, userId);
   }
 
-  public async updateMyAddress(address: UserAddress, userId: number): Promise<[number, UserAddress[]]> {
-    return this.spPageRepository.updateMyAddress(address, userId);
+  public async updateAddMyAddress(address: updateSPDetail, addressId:number){
+    return this.spPageRepository.updateAddMyAddress(address, addressId);
+  }
+
+  public async createNewAddress(userId:number, userAddress: updateSPDetail){
+    return this.spPageRepository.createNewAddress(userId,userAddress);
   }
 
   public async changePassById(userId: number): Promise<User | null> {
     return this.spPageRepository.changePassById(userId);
   }
 
-  public async changePassword(password: string, userId: number): Promise<[number, User[]]> {
-    return this.spPageRepository.changePassword(password, userId);
+  public async changeSPPassword(password: string, userId: number): Promise<[number, User[]]> {
+    return this.spPageRepository.changeSPPassword(password, userId);
+  }
+
+  public convertStringtoDate(date:any){
+    const updateddate = date.toString().split('-').reverse().join('-');
+    const convertedDate = new Date(updateddate);
+    return convertedDate;
   }
 }

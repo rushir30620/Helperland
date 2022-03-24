@@ -63,7 +63,6 @@ var ServiceBookController = /** @class */ (function () {
                             var isPresent = false;
                             if (serviceProviders.length > 0) {
                                 for (var sp in serviceProviders) {
-                                    // console.log(req.body.postalcode);
                                     if (serviceProviders[sp].zipCode == req.body.postalcode) {
                                         isPresent = true;
                                     }
@@ -110,12 +109,10 @@ var ServiceBookController = /** @class */ (function () {
                             return res.status(403).json({ msg: "Invalid Token" });
                         }
                         else {
-                            console.log(user);
                             req.body.ZipCode = user.postalcode;
                             req.body.email = user.email;
                             return _this.serviceBook.getUserWithEmail(user.email)
                                 .then(function (user) {
-                                // console.log(user?.userTypeId);
                                 var abc = user === null || user === void 0 ? void 0 : user.userTypeId;
                                 console.log(abc);
                                 if (abc == 4) {

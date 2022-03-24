@@ -68,7 +68,7 @@ var swaggerOptions = {
             servers: ["http://localhost:3000"]
         }
     },
-    apis: ['./routes/contact.routes.ts', './routes/user.routes.ts', './routes/serviceRequest.routes.ts', './routes/customerPage.routes.ts']
+    apis: ['./routes/contact.routes.ts', './routes/user.routes.ts', './routes/serviceRequest.routes.ts', './routes/customerPage.routes.ts', './routes/spPage.routes.ts', './routes/admin.routes.ts']
 };
 var swaggerDocs = (0, swagger_jsdoc_1.default)(swaggerOptions);
 app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerDocs));
@@ -77,6 +77,7 @@ var user_routes_1 = __importDefault(require("./routes/user.routes"));
 var serviceRequest_routes_1 = __importDefault(require("./routes/serviceRequest.routes"));
 var customerPage_routes_1 = __importDefault(require("./routes/customerPage.routes"));
 var spPage_routes_1 = __importDefault(require("./routes/spPage.routes"));
+var admin_routes_1 = __importDefault(require("./routes/admin.routes"));
 //Parse incoming requests data
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: false }));
@@ -86,6 +87,7 @@ app.use('/', user_routes_1.default);
 app.use('/', serviceRequest_routes_1.default);
 app.use('/', customerPage_routes_1.default);
 app.use('/', spPage_routes_1.default);
+app.use('/', admin_routes_1.default);
 server.listen(port, function () {
     console.log("Server running at http://".concat(hostname, ":").concat(port, "/"));
     models_1.sequelize.authenticate().then(function () { return __awaiter(void 0, void 0, void 0, function () {

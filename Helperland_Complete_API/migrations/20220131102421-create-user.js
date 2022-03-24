@@ -21,7 +21,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       mobile: {
-        type: Sequelize.BIGINT
+        type: Sequelize.STRING
       },
       userTypeId: {
         type: Sequelize.INTEGER
@@ -43,7 +43,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       languageId: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       nationalityId: {
         type: Sequelize.INTEGER

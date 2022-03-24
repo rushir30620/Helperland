@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 require('dotenv').config();
 
-const userTypeID: number = 3;
+const userTypeID: number = 2;
 
 export class ServiceProviderController{
     public constructor(private readonly serviceProviderService: ServiceProviderService) {

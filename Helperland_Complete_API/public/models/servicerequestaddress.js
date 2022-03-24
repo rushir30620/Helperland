@@ -55,7 +55,7 @@ exports.ServiceRequestAddressModelAttributes = {
         type: sequelize_1.DataTypes.STRING
     },
     Mobile: {
-        type: sequelize_1.DataTypes.INTEGER
+        type: sequelize_1.DataTypes.STRING
     },
     Email: {
         type: sequelize_1.DataTypes.STRING

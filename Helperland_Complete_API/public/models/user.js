@@ -48,7 +48,7 @@ exports.UserModelAttributes = {
         unique: true
     },
     mobile: {
-        type: sequelize_1.DataTypes.BIGINT,
+        type: sequelize_1.DataTypes.STRING,
         unique: true
     },
     userTypeId: {
@@ -71,7 +71,7 @@ exports.UserModelAttributes = {
         allowNull: true
     },
     zipCode: {
-        type: sequelize_1.DataTypes.INTEGER,
+        type: sequelize_1.DataTypes.STRING,
         allowNull: true
     },
     languageId: {
