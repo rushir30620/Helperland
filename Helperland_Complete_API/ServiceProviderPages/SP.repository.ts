@@ -28,6 +28,10 @@ export class SPPageRepository{
         return db.ServiceRequest.findOne({ where: {ServiceRequestId: serviceRequestId, Status: 1}, include: ["ServiceRequestAddress", "ExtraService"]});
     }
 
+    public async getAcceptedServiceRequest(serviceRequestId: number): Promise<ServiceRequest | null> {
+        return db.ServiceRequest.findOne({ where: {ServiceRequestId: serviceRequestId, Status: 2}, include: ["ServiceRequestAddress", "ExtraService"]});
+    }
+
     public async getServiceProvider(userId:number):Promise<User[]|null>{
         return db.Users.findAll({where:{id: userId, userTypeId:3}})
     }

@@ -139,7 +139,7 @@ export class UserController{
                     }
                     return res.status(401).json({ message: "Invalid Email or Password"});
                 }
-                return res.status(401).json({ message: "Please Active Your Account"});
+                return res.status(401).json({ message: "Please wait until admin active your account"});
             }
         })
         .catch((error: Error) => {

@@ -6,26 +6,26 @@ import { ServiceRequestAddress } from "../models/servicerequestaddress";
 import { editServiceDetail } from "./rescheduleTypes";
 
 export class AdminService {
-    public constructor(private readonly adminRepository: AdminRepository){
+    public constructor(private readonly adminRepository: AdminRepository) {
         this.adminRepository = adminRepository;
     };
 
-/////////////////////////////////////////// 7.1 Service Requets API //////////////////////////////////////////////////
+    /////////////////////////////////////////// 7.1 Service Requets API //////////////////////////////////////////////////
 
 
-    public async getAllServiceRequests():Promise<ServiceRequest[]> {
+    public async getAllServiceRequests(): Promise<ServiceRequest[]> {
         return this.adminRepository.getAllServiceRequests();
     };
 
-    public async getCustomerDetail(custId:number):Promise<User | null>{
+    public async getCustomerDetail(custId: number): Promise<User | null> {
         return this.adminRepository.getCustomerDetail(custId);
     };
 
-    public async getSPDetail(spId:number): Promise<User | null> {
+    public async getSPDetail(spId: number): Promise<User | null> {
         return this.adminRepository.getSPDetail(spId);
     }
 
-    public async getSRAddress(srId:number): Promise<ServiceRequestAddress | null> {
+    public async getSRAddress(srId: number): Promise<ServiceRequestAddress | null> {
         return this.adminRepository.getSRAddress(srId);
     }
 
@@ -45,19 +45,23 @@ export class AdminService {
         return this.adminRepository.rescheduleDateandTime(sr, serviceId);
     }
 
-    public async getSRaddress(srId:number):Promise<ServiceRequestAddress| null>{
+    public async getSRaddress(srId: number): Promise<ServiceRequestAddress | null> {
         return this.adminRepository.getSRAddress(srId);
     }
 
-    public async updateMyAddress(address: editServiceDetail, addressId:number){
+    public async updateMyAddress(address: editServiceDetail, addressId: number) {
         return this.adminRepository.updateMyAddress(address, addressId);
     }
 
-    public async getServiceRequests(srId : number): Promise<ServiceRequest[]> {
+    public async getAcceptedServiceRequest(serviceRequestId: number): Promise<ServiceRequest | null> {
+        return this.adminRepository.getAcceptedServiceRequest(serviceRequestId);
+    }
+
+    public async getServiceRequests(srId: number): Promise<ServiceRequest[]> {
         return this.adminRepository.getServiceRequests(srId)
     }
 
-    public compareTwoDates(date: string){
+    public compareTwoDates(date: string) {
         const date1 = new Date(date.split("-").reverse().join("-"));
         const date2 = new Date(moment(new Date()).format("YYYY-MM-DD"));
         if (date1 > date2) {
@@ -67,24 +71,60 @@ export class AdminService {
         }
     }
 
-    public mailData(userEmail: string, serviceRequestId: number): typeof mailOptions {
+    public mailData(userEmail: string, helperEmail: string, serviceRequestId: number): typeof mailOptions {
         const mailOptions = {
-          from: process.env.USER,
-          to: userEmail,
-          subject: "Service Request Rescheduled",
-          html: `<h3>A service request ${serviceRequestId} has been rescheduled. Please check it out.</h3>`
+            from: process.env.USER,
+            to: `${userEmail},${helperEmail}`,
+            subject: "Service Request Rescheduled",
+            html: `<h3>A service request ${serviceRequestId} has been rescheduled successfully. Please check it out.</h3>`
         };
         return mailOptions;
     }
 
+    public async check(date: string, servicerequest: ServiceRequest[], time: string, totalHour: number){
+        let newServiceDate = new Date(date.split("-").reverse().join("-"));
+        newServiceDate.setHours(parseInt(time.toString().split(':')[0]));
+        newServiceDate.setMinutes(parseInt(time.toString().split(':')[1]));
+        let newServiceEnd = new Date(newServiceDate);
 
-////////////////////////////////////////////// 7.2 Filters API ///////////////////////////////////////////////
 
-    public async searchByServiceId(serviceId:number):Promise<ServiceRequest[]>{
+        newServiceEnd.setHours(newServiceDate.getHours() + Math.floor(totalHour));
+        newServiceEnd.setMinutes((totalHour - Math.floor(totalHour)) * 60);
+
+        let flag;
+        servicerequest.forEach((s) => {
+
+            let oldServiceStart = new Date(s.ServiceStartDate);
+            oldServiceStart.setHours(parseInt(s.ServiceStartTime.toString().split(':')[0]));
+            oldServiceStart.setMinutes(parseInt(s.ServiceStartTime.toString().split(':')[1]));
+
+            const total = s.ServiceHours + s.ExtraHours;
+
+            let oldServiceEnd = oldServiceStart;
+            oldServiceEnd.setHours(oldServiceEnd.getHours() + Math.floor(total));
+            oldServiceEnd.setMinutes((total - Math.floor(total)) * 60);
+            if (
+                (newServiceDate >= oldServiceStart && newServiceDate <= oldServiceEnd) ||
+                (newServiceEnd >= oldServiceStart && newServiceEnd <= oldServiceEnd) ||
+                (oldServiceStart >= newServiceDate && oldServiceEnd <= newServiceEnd)
+            ) {
+                flag = true;
+            }
+
+            else {
+                flag = false;
+            }
+        });
+        return { flag };
+    }
+
+    ////////////////////////////////////////////// 7.2 Filters API ///////////////////////////////////////////////
+
+    public async searchByServiceId(serviceId: number): Promise<ServiceRequest[]> {
         return this.adminRepository.searchByServiceId(serviceId);
     }
 
-    public async searchByPostalcode(postalCode:string):Promise<ServiceRequest[]>{
+    public async searchByPostalcode(postalCode: string): Promise<ServiceRequest[]> {
         return this.adminRepository.searchByPostalcode(postalCode);
     }
 
@@ -93,10 +133,10 @@ export class AdminService {
     }
 
     public async getUserByName(name1: string, name2: string): Promise<User | null> {
-        return  this.adminRepository.getUserByName(name1, name2);
+        return this.adminRepository.getUserByName(name1, name2);
     }
 
-    public async searchByEmailAndNameWithUserID(userId:number):Promise<ServiceRequest[]>{
+    public async searchByEmailAndNameWithUserID(userId: number): Promise<ServiceRequest[]> {
         return this.adminRepository.searchByEmailAndNameWithUserID(userId);
     }
 
@@ -104,7 +144,7 @@ export class AdminService {
         return this.adminRepository.getServiceByStatus(status);
     }
 
-    public async searchByStatus(status:number):Promise<ServiceRequest[]>{
+    public async searchByStatus(status: number): Promise<ServiceRequest[]> {
         return this.adminRepository.searchByStatus(status);
     }
 
@@ -112,7 +152,7 @@ export class AdminService {
         return this.adminRepository.getServiceByHasIssue(hasIssue);
     }
 
-    public async searchByHasIssue(hasIssue: boolean):Promise<ServiceRequest[]>{
+    public async searchByHasIssue(hasIssue: boolean): Promise<ServiceRequest[]> {
         return this.adminRepository.searchByHasIssue(hasIssue);
     }
 
@@ -120,13 +160,13 @@ export class AdminService {
         return this.adminRepository.getServiceByDate(date);
     }
 
-    public async searchByDate(date: Date):Promise<ServiceRequest[]>{
+    public async searchByDate(date: Date): Promise<ServiceRequest[]> {
         return this.adminRepository.searchByDate(date);
     }
 
-    public async requestData(request:ServiceRequest[]):Promise<Object[]>{
-        let serviceDetail : Object[] = [];
-        for(let sr in request){
+    public async requestData(request: ServiceRequest[]): Promise<Object[]> {
+        let serviceDetail: Object[] = [];
+        for (let sr in request) {
             const user = await this.adminRepository.getCustomerDetail(request[sr].UserId);
             const address = await this.adminRepository.getSRAddress(request[sr].ServiceRequestId);
             const helper = await this.adminRepository.getSPDetail(request[sr].ServiceProviderId);
@@ -139,7 +179,66 @@ export class AdminService {
                 endTime[1] = "00";
             }
 
-            if(user && address && helper){
+            if (user && address) {
+                if (helper) {
+                    serviceDetail.push({
+                        ServiceId: request[sr].ServiceRequestId,
+                        ServiceDate: request[sr].ServiceStartDate.toString().split("-").reverse().join("-"),
+                        ServiceTime: startTime[0] + ":" + startTime[1] + "-" + endTime[0] + ":" + endTime[1],
+                        Customer: user.firstName + " " + user.lastName,
+                        serviceAddress: {
+                            Street: address.Addressline1,
+                            HouseNumber: address.Addressline2,
+                            City: address.City,
+                            PostalCode: address.PostalCode
+                        },
+                        ServiceProvider: helper?.firstName + " " + helper?.lastName,
+                        GrossAmount: request[sr].TotalCost + " €",
+                        NetAmount: request[sr].TotalCost + " €",
+                        Discount: request[sr].Discount,
+                        Status: request[sr].Status
+                    })
+                }
+                else {
+                    serviceDetail.push({
+                        ServiceId: request[sr].ServiceRequestId,
+                        ServiceDate: request[sr].ServiceStartDate.toString().split("-").reverse().join("-"),
+                        ServiceTime: startTime[0] + ":" + startTime[1] + "-" + endTime[0] + ":" + endTime[1],
+                        Customer: user.firstName + " " + user.lastName,
+                        serviceAddress: {
+                            Street: address.Addressline1,
+                            HouseNumber: address.Addressline2,
+                            City: address.City,
+                            PostalCode: address.PostalCode
+                        },
+                        ServiceProvider: "No service provider",
+                        GrossAmount: request[sr].TotalCost + " €",
+                        NetAmount: request[sr].TotalCost + " €",
+                        Discount: request[sr].Discount,
+                        Status: request[sr].Status
+                    })
+                }
+            }
+        }
+        return serviceDetail;
+    }
+
+    public async requestData2(request: ServiceRequest[]): Promise<Object[]> {
+        let serviceDetail: Object[] = [];
+        for (let sr in request) {
+            const user = await this.adminRepository.getCustomerDetail(request[sr].UserId);
+            const address = await this.adminRepository.getSRAddress(request[sr].ServiceRequestId);
+            const helper = await this.adminRepository.getSPDetail(request[sr].ServiceProviderId);
+            const startTime = request[sr].ServiceStartTime.toString().split(":")!;
+            const endTime = (parseFloat(startTime[0]) + parseFloat(startTime[1]) / 60 + request[sr].ServiceHours! + request[sr].ExtraHours!).toString().split(".");
+            if (endTime[1]) {
+                endTime[1] = (parseInt(endTime[1]) * 6).toString();
+            }
+            else {
+                endTime[1] = "00";
+            }
+
+            if (user && address && helper) {
                 serviceDetail.push({
                     ServiceId: request[sr].ServiceRequestId,
                     ServiceDate: request[sr].ServiceStartDate.toString().split("-").reverse().join("-"),
@@ -151,57 +250,57 @@ export class AdminService {
                         City: address.City,
                         PostalCode: address.PostalCode
                     },
-                    ServiceProvider: helper.firstName + " " + helper.lastName,
+                    ServiceProvider: helper?.firstName + " " + helper?.lastName,
                     GrossAmount: request[sr].TotalCost + " €",
                     NetAmount: request[sr].TotalCost + " €",
                     Discount: request[sr].Discount,
                     Status: request[sr].Status
-                })
+                });
             }
         }
         return serviceDetail;
     }
 
-    public convertStringtoDate(date:any){
+    public convertStringtoDate(date: any) {
         const updateddate = date.toString().split('-').reverse().join('-');
         const convertedDate = new Date(updateddate);
         return convertedDate;
     }
 
 
-/////////////////////////////////////////// 7.3 User Management API //////////////////////////////////////////////////
+    /////////////////////////////////////////// 7.3 User Management API //////////////////////////////////////////////////
 
-public async getAllUsers():Promise<User[]> {
-    return this.adminRepository.getAllUsers();
-};
+    public async getAllUsers(): Promise<User[]> {
+        return this.adminRepository.getAllUsers();
+    };
 
-public async getUserManageDetail(usId: number): Promise<User | null> {
-    return this.adminRepository.getUserManageDetail(usId);
-}
-
-public async userManageData(users:User[]):Promise<Object[]>{
-    let userDetail : Object[] = [];
-    for(let us in users){
-        const user = await this.adminRepository.getUserManageDetail(users[us].id);
-        let userType : string | undefined;
-        if(user?.userTypeId === 3){
-            userType = "Service Provider"
-        }
-        else{
-            userType = "Customer"
-        }
-        if(user){
-            userDetail.push({
-                UserName: user.firstName + " " + user.lastName,
-                DateOfRegistration: user.createdAt.toString().split("-").reverse().join("-"),
-                UserType: userType,
-                Phone: user.mobile,
-                PostalCode: user.zipCode,
-                Status: user.isRegisteredUser
-            })
-        }
+    public async getUserManageDetail(usId: number): Promise<User | null> {
+        return this.adminRepository.getUserManageDetail(usId);
     }
-    return userDetail;
-}
+
+    public async userManageData(users: User[]): Promise<Object[]> {
+        let userDetail: Object[] = [];
+        for (let us in users) {
+            const user = await this.adminRepository.getUserManageDetail(users[us].id);
+            let userType: string | undefined;
+            if (user?.userTypeId === 3) {
+                userType = "Service Provider"
+            }
+            else {
+                userType = "Customer"
+            }
+            if (user) {
+                userDetail.push({
+                    UserName: user.firstName + " " + user.lastName,
+                    DateOfRegistration: user.createdAt.toString().split("-").reverse().join("-"),
+                    UserType: userType,
+                    Phone: user.mobile,
+                    PostalCode: user.zipCode,
+                    Status: user.isRegisteredUser
+                })
+            }
+        }
+        return userDetail;
+    }
 
 }

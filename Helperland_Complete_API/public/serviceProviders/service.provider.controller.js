@@ -45,7 +45,7 @@ var bcryptjs_1 = __importDefault(require("bcryptjs"));
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 var nodemailer_1 = __importDefault(require("nodemailer"));
 require('dotenv').config();
-var userTypeID = 2;
+var userTypeID = 3;
 var ServiceProviderController = /** @class */ (function () {
     function ServiceProviderController(serviceProviderService) {
         var _this = this;
@@ -190,7 +190,7 @@ var ServiceProviderController = /** @class */ (function () {
                                                 .json({ message: "Helper login successful " })];
                                     }
                                     return [2 /*return*/, res.status(401).json({ message: "Invalid Email or Password" })];
-                                case 3: return [2 /*return*/, res.status(401).json({ message: "Please Active Your Account" })];
+                                case 3: return [2 /*return*/, res.status(401).json({ message: "Please wait until admin active your account" })];
                             }
                         });
                     }); })

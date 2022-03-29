@@ -334,45 +334,45 @@ export class SPPageController {
     }
 
     public cancelServiceRequest = async (req: Request, res: Response): Promise<Response> => {
-        const serviceRequest = req.params.serviceRequestId;
-        if (serviceRequest) {
-            return this.spPageService.getServiceRequestById(req.params.serviceRequestId)
-                .then(async (customer) => {
-                    if (!customer) {
+        const serviceRequestId = +req.params.serviceRequestId;
+        if (serviceRequestId) {
+            return this.spPageService.getAcceptedServiceRequest(+req.params.serviceRequestId)
+                .then(async (serviceRequest) => {
+                    if (!serviceRequest) {
                         return res.status(404).json({ msg: "Service Request Not Found" });
                     }
-                    else {
-                        const customerObj = {
-                            ServiceRequestId: customer.ServiceRequestId,
-                            ServiceId: customer.ServiceId,
-                            ServiceStartDate: customer.ServiceStartDate,
-                            ServiceStartTime: customer.ServiceStartTime,
-                            ZipCode: customer.ZipCode,
-                            ServiceHourlyRate: customer.ServiceHourlyRate,
-                            ServiceHours: customer.ServiceHours,
-                            ExtraHours: customer.ExtraHours,
-                            SubTotal: customer.SubTotal,
-                            Discount: customer.Discount,
-                            TotalCost: customer.TotalCost,
+                    else{
+                        const spObj = {
+                            ServiceRequestId: serviceRequest.ServiceRequestId,
+                            ServiceId: serviceRequest.ServiceId,
+                            ServiceStartDate: serviceRequest.ServiceStartDate,
+                            ServiceStartTime: serviceRequest.ServiceStartTime,
+                            ZipCode: serviceRequest.ZipCode,
+                            ServiceHourlyRate: serviceRequest.ServiceHourlyRate,
+                            ServiceHours: serviceRequest.ServiceHours,
+                            ExtraHours: serviceRequest.ExtraHours,
+                            SubTotal: serviceRequest.SubTotal,
+                            Discount: serviceRequest.Discount,
+                            TotalCost: serviceRequest.TotalCost,
                             Comments: req.body.Comments,
-                            PaymentTransactionRefNo: customer.PaymentTransactionRefNo,
-                            PaymentDue: customer.PaymentDue,
-                            SPAcceptedDate: customer.SPAcceptedDate,
-                            HasPets: customer.HasPets,
+                            PaymentTransactionRefNo: serviceRequest.PaymentTransactionRefNo,
+                            PaymentDue: serviceRequest.PaymentDue,
+                            SPAcceptedDate: serviceRequest.SPAcceptedDate,
+                            HasPets: serviceRequest.HasPets,
                             Status: 4,
-                            ModifiedBy: customer.ModifiedBy,
-                            RefundedAmount: customer.RefundedAmount,
-                            Distance: customer.Distance,
-                            HasIssue: customer.HasIssue,
-                            PaymentDone: customer.PaymentDone,
-                            RecordVersion: customer.RecordVersion,
-                            UserId: customer.UserId,
-                            ServiceProviderId: customer.ServiceProviderId
+                            ModifiedBy: serviceRequest.ModifiedBy,
+                            RefundedAmount: serviceRequest.RefundedAmount,
+                            Distance: serviceRequest.Distance,
+                            HasIssue: serviceRequest.HasIssue,
+                            PaymentDone: serviceRequest.PaymentDone,
+                            RecordVersion: serviceRequest.RecordVersion,
+                            UserId: serviceRequest.UserId,
+                            ServiceProviderId: serviceRequest.ServiceProviderId
                         }
-                        const result = await db.ServiceRequest.update(customerObj, { where: { ServiceRequestId: serviceRequest } });
+                        const result = await db.ServiceRequest.update(spObj, { where: { ServiceRequestId: serviceRequestId } });
 
                         if (result) {
-                            return res.status(200).json({ customerObj });
+                            return res.status(200).json({ spObj });
                         }
                         else {
                             return res.status(500).json({ msg: "Not Found" });

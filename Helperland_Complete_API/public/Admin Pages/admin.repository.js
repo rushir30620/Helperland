@@ -93,12 +93,6 @@ var AdminRepository = /** @class */ (function () {
             });
         });
     };
-    // public async rescheduleDateandTime(date: Date,time: string,serviceId: number): Promise<[number, ServiceRequest[]]> {
-    //     return db.ServiceRequest.update(
-    //       { ServiceStartDate: date, ServiceStartTime: time },
-    //       { where: { ServiceRequestId: serviceId } }
-    //     );
-    // }
     AdminRepository.prototype.rescheduleDateandTime = function (sr, serviceId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -106,9 +100,6 @@ var AdminRepository = /** @class */ (function () {
             });
         });
     };
-    // public async updateMyAddress(address: ServiceRequestAddress, addressId:number){
-    //     return db.ServiceRequestAddress.update(address, { where: {ServiceRequestId: addressId}});
-    // }
     AdminRepository.prototype.updateMyAddress = function (address, addressId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -118,6 +109,13 @@ var AdminRepository = /** @class */ (function () {
                         PostalCode: address.serviceAddress.PostalCode,
                         City: address.serviceAddress.City
                     }, { where: { ServiceRequestId: addressId } })];
+            });
+        });
+    };
+    AdminRepository.prototype.getAcceptedServiceRequest = function (serviceRequestId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, index_1.db.ServiceRequest.findOne({ where: { ServiceRequestId: serviceRequestId, Status: [1, 2] }, include: ["ServiceRequestAddress", "ExtraService"] })];
             });
         });
     };

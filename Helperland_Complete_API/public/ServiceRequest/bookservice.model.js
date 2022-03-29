@@ -23,7 +23,7 @@ exports.ServiceBookSchema = {
                 .required()
                 .example(1)
                 .description('ServiceId'),
-            ServiceStartDate: celebrate_1.Joi.date()
+            ServiceStartDate: celebrate_1.Joi.string()
                 .required()
                 .example('12-02-2022')
                 .description('Date of the service'),

@@ -200,7 +200,7 @@ var UserController = /** @class */ (function () {
                                                 .json({ message: "User login successful " })];
                                     }
                                     return [2 /*return*/, res.status(401).json({ message: "Invalid Email or Password" })];
-                                case 3: return [2 /*return*/, res.status(401).json({ message: "Please Active Your Account" })];
+                                case 3: return [2 /*return*/, res.status(401).json({ message: "Please wait until admin active your account" })];
                             }
                         });
                     }); })

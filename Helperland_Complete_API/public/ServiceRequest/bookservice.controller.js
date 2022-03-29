@@ -144,6 +144,7 @@ var ServiceBookController = /** @class */ (function () {
             return __generator(this, function (_a) {
                 serviceProviderList = [];
                 token = req.headers.authorization;
+                req.body.ServiceStartDate = this.serviceBook.convertStringtoDate(req.body.ServiceStartDate);
                 req.body.ServiceHourlyRate = 18;
                 req.body.ExtraHours = req.body.ExtraService.length * 0.5;
                 req.body.SubTotal = req.body.ServiceHourlyRate * req.body.ServiceHours;
@@ -155,6 +156,7 @@ var ServiceBookController = /** @class */ (function () {
                             if (user.userTypeId === 4) {
                                 req.body.UserId = user.id;
                                 req.body.ModifiedBy = user.id;
+                                req.body.Status = 1;
                             }
                             else {
                                 return res.status(301).json({ msg: "Please Use Your User Account!!" });

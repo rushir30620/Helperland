@@ -150,6 +150,15 @@ exports.db.Users.hasMany(exports.db.FavoriteAndBlocked, {
     constraints: true,
     onDelete: "CASCADE",
 });
+exports.db.Users.hasMany(exports.db.FavoriteAndBlocked, {
+    foreignKey: {
+        name: "TargetUserId",
+        allowNull: false,
+    },
+    as: 'TargetUserId',
+    constraints: true,
+    onDelete: "CASCADE",
+});
 exports.db.Users.hasMany(exports.db.Rating, {
     foreignKey: {
         name: "RatingFrom",

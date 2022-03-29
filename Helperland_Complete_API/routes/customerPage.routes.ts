@@ -5,7 +5,12 @@ import { CustomerPageController } from "../CustomerPages/customerPages.controlle
 import { UserRepository } from "../user/user.repository";
 import { UserService } from "../user/user.service";
 import { UserController } from "../user/user.controller";
+import { FavouriteSPRepository } from "../CustomerPages/FavouriteSP/FavouriteSP.repository";
+import { FavouriteSPService } from "../CustomerPages/FavouriteSP/FavouriteSP.service";
+import { FavouriteSPController } from "../CustomerPages/FavouriteSP/Favourite.controller";
+
 import { CustomerSchema } from "../CustomerPages/customerPages.model";
+import { FavoriteSPSchema } from "../CustomerPages/FavouriteSP/Favourite.model";
 import { celebrate } from "celebrate";
 
 const router: express.Router = express.Router();
@@ -18,7 +23,12 @@ const userrepo: UserRepository = new UserRepository();
 const userservice: UserService = new UserService(userrepo);
 const usercontroller: UserController = new UserController(userservice);
 
+const favouriteRepo: FavouriteSPRepository = new FavouriteSPRepository();
+const favouriteService: FavouriteSPService = new FavouriteSPService(favouriteRepo);
+const favouriteController: FavouriteSPController = new FavouriteSPController(favouriteService);
+
 const { RescheduleDateTime, CancelServiceRequest, Rating, UpdateUserDetails, EditAddUserAddress, ChangePassword} = CustomerSchema;
+const { Favourite, Blocked } = FavoriteSPSchema;
 
 
 ////////////////////////////////////////// Dashboard Routes ////////////////////////////////////////////
@@ -31,7 +41,12 @@ router.delete('/cancelService/:id', celebrate(CancelServiceRequest), usercontrol
 router.get('/service-history', usercontroller.validateTokenMiddleware, usercontroller.validateTokenMiddleware, customerController.getServiceHistory);
 router.post('/rateSP/:serviceRequestId', celebrate(Rating), usercontroller.validateTokenMiddleware, customerController.rateSP);
 
-///////////////////////////////////////// Service History Routes //////////////////////////////////////
+///////////////////////////////////////// Favourite/Unfavourite Routes //////////////////////////////////////
+router.get("/favourite-sp", usercontroller.validateTokenMiddleware, favouriteController.getSPworkedwithUser);
+router.post("/favourite-sp/:spId", celebrate(Favourite), usercontroller.validateTokenMiddleware, favouriteController.createFavouriteSP, favouriteController.Unfavourite);
+router.post("/block-sp/:spId", celebrate(Blocked), usercontroller.validateTokenMiddleware, favouriteController.blockSP, favouriteController.Unblock);
+
+///////////////////////////////////////// Update details Routes //////////////////////////////////////
 router.get("/Mydetails",usercontroller.validateTokenMiddleware,customerController.getUserDetailById);
 router.put('/updateMyDetails', celebrate(UpdateUserDetails), usercontroller.validateTokenMiddleware, customerController.updateMyDetails);
 router.get("/getaddress", usercontroller.validateTokenMiddleware, customerController.getUserAddressesById);
@@ -83,6 +98,18 @@ router.put('/changePassword', celebrate(ChangePassword), usercontroller.validate
  *     type: string
  *     description: comments
  *     example: "Very good service provider"
+ *  Favourite:
+ *   type: object
+ *   properties:
+ *    IsFavorite:
+ *     type: boolean
+ *     example: 'true'
+ *  Blocked:
+ *   type: object
+ *   properties:
+ *    IsBlocked:
+ *     type: boolean
+ *     example: 'true'
  *  UpdateUserDetails:
  *   type: object
  *   properties:
@@ -327,6 +354,113 @@ router.put('/changePassword', celebrate(ChangePassword), usercontroller.validate
  *     description: invalid login credential
  *    404:
  *     description: service provider not found
+ *    500:
+ *     description: internal server error.
+ * 
+ */
+
+
+ /////////////////////////////////// Favorite And Blocked API //////////////////////////////////////////
+
+ /**
+ * @swagger
+ * /favourite-sp:
+ *  get:
+ *   summary: Favorite Service Provider
+ *   description: service provider worked with customer
+ *   tags: 
+ *    - Customer Dashboard Page
+ *   parameters:
+ *    - in: header
+ *      name: auth
+ *      schema:
+ *       type: string
+ *   responses:
+ *    200:
+ *     description: Service Provider found.
+ *    401:
+ *     description: invalid login credential or user not found.
+ *    404:
+ *     description: No Service Provider Worked With Customer.
+ *    500:
+ *     description: internal server error.
+ */
+
+  /**
+ * @swagger
+ * /favourite-sp/{spId}:
+ *  post:
+ *   summary: Favorite Service Provider
+ *   description: Add or remove favorite service provider
+ *   tags: 
+ *    - Customer Dashboard Page
+ *   parameters:
+ *    - in: header
+ *      name: auth
+ *      schema:
+ *       type: string
+ *    - in: path
+ *      name: helperId
+ *      schema:
+ *       type: integer
+ *   requestBody:
+ *    content:
+ *     application/json:
+ *      schema:
+ *       $ref: '#/definitions/Favourite'
+ *   responses:
+ *    200:
+ *     description: Service Provider added your favourite list successfully.
+ *    201:
+ *     description: Service Provider Favourite Status updated successfully or Service Provider UnFavourite Status updated successfully.
+ *    401:
+ *     description: invalid login credential or user not found.
+ *    402:
+ *     description: Service Provider already in your favourite list
+ *    403:
+ *     description: Error!!! Service Provider cannot add your favourite list / Error!! while added service provider in your favourite list.
+ *    404:
+ *     description: Please enter valid input / No Service Provider Worked With Customer.
+ *    500:
+ *     description: internal server error.
+ * 
+ */
+
+    /**
+ * @swagger
+ * /block-sp/{spId}:
+ *  post:
+ *   summary: Block Service Provider
+ *   description: block or unblock service provider
+ *   tags: 
+ *    - Customer Dashboard Page
+ *   parameters:
+ *    - in: header
+ *      name: auth
+ *      schema:
+ *       type: string
+ *    - in: path
+ *      name: helperId
+ *      schema:
+ *       type: integer
+ *   requestBody:
+ *    content:
+ *     application/json:
+ *      schema:
+ *       $ref: '#/definitions/Blocked'
+ *   responses:
+ *    200:
+ *     description: Service Provider added your block list successfully.
+ *    201:
+ *     description: Service Provider Block Status updated successfully or Service Provider Unblock Status updated successfully.
+ *    401:
+ *     description: invalid login credential or user not found.
+ *    402:
+ *     description: Service Provider already in your block list
+ *    403:
+ *     description: Error!!! Service Provider cannot add your block list / Error!! while added service provider in your block list.
+ *    404:
+ *     description: Please enter valid input / No Service Provider Worked With Customer.
  *    500:
  *     description: internal server error.
  * 

@@ -24,6 +24,7 @@ const { EditDetails, SearchById, SearchByPostalcode, SearchByEmail, SearchByName
 
 router.get('/all-service-requests', usercontroller.validateTokenMiddleware, adminController.getAllServiceRequests);
 router.put('/reschedule-edit-service/:serviceId', celebrate(EditDetails), usercontroller.validateTokenMiddleware, adminController.rescheduleDateandTime, adminController.updateMyAddress);
+router.delete('/cancle-service/:serviceRequestId', usercontroller.validateTokenMiddleware, adminController.cancelServiceRequestFromAdmin);
 
 /////////////////////////////////////////// 7.2 Filters API //////////////////////////////////////////////////
 
@@ -41,6 +42,8 @@ router.get('/search-by-date', celebrate(SearchByDate), usercontroller.validateTo
 router.get('/get-all-users', usercontroller.validateTokenMiddleware, adminController.getUserList);
 router.put('/activate-or-deactivate/:userId', celebrate(Activate), usercontroller.validateTokenMiddleware, adminController.activeUser, adminController.deactiveUser);
 
+/////////////////////////////////////////// 7.4 Refund API //////////////////////////////////////////////////
+router.put('/refund-amount/:serviceRequestId', usercontroller.validateTokenMiddleware, adminController.refundAmount);
 
 ////////////////////////////////////////// Swagger Schema ///////////////////////////////////////////////////////////
 
@@ -198,6 +201,38 @@ router.put('/activate-or-deactivate/:userId', celebrate(Activate), usercontrolle
  *     description: This service cannot assign to this service provider. Please choose another service date and time.
  *    422:
  *     description: Please enter valid date
+ *    500:
+ *     description: internal server error.
+ */
+
+/**
+ * @swagger
+ * /cancle-upcoming-service/{serviceRequestId}:
+ *  delete:
+ *   summary: Cancel service request
+ *   description: Cancel service request
+ *   tags: 
+ *    - Admin Pages 
+ *   parameters:
+ *    - in: header
+ *      name: auth
+ *      schema:
+ *       type: string
+ *    - in: path
+ *      name: requestId
+ *      schema:
+ *       type: integer
+ *   responses:
+ *    200:
+ *     description: service request cancelled successfully.
+ *    400:
+ *     description: service request id not found.
+ *    401:
+ *     description: invalid login credential.
+ *    404:
+ *     description: service request detail not found.
+ *    422:
+ *     description: error in cancelling service request
  *    500:
  *     description: internal server error.
  */

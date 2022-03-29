@@ -248,6 +248,15 @@ db.Users.hasMany(db.FavoriteAndBlocked,{
     constraints: true,
     onDelete: "CASCADE",
 });
+db.Users.hasMany(db.FavoriteAndBlocked,{
+    foreignKey: {
+      name: "TargetUserId",
+      allowNull: false,
+    },
+    as: 'TargetUserId',
+    constraints: true,
+    onDelete: "CASCADE",
+});
 
 db.Users.hasMany(db.Rating,{
     foreignKey: {

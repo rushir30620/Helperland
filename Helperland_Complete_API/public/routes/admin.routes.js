@@ -22,6 +22,7 @@ var EditDetails = admin_model_1.AdminSchema.EditDetails, SearchById = admin_mode
 /////////////////////////////////////////// 7.1 Service Request API //////////////////////////////////////////////////
 router.get('/all-service-requests', usercontroller.validateTokenMiddleware, adminController.getAllServiceRequests);
 router.put('/reschedule-edit-service/:serviceId', (0, celebrate_1.celebrate)(EditDetails), usercontroller.validateTokenMiddleware, adminController.rescheduleDateandTime, adminController.updateMyAddress);
+router.delete('/cancle-service/:serviceRequestId', usercontroller.validateTokenMiddleware, adminController.cancelServiceRequestFromAdmin);
 /////////////////////////////////////////// 7.2 Filters API //////////////////////////////////////////////////
 router.get('/search-by-serviceId', (0, celebrate_1.celebrate)(SearchById), usercontroller.validateTokenMiddleware, adminController.searchByServiceId);
 router.get('/search-by-postalcode', (0, celebrate_1.celebrate)(SearchByPostalcode), usercontroller.validateTokenMiddleware, adminController.searchByPostalcode);
@@ -34,4 +35,6 @@ router.get('/search-by-date', (0, celebrate_1.celebrate)(SearchByDate), usercont
 /////////////////////////////////////////// 7.3 User Management API //////////////////////////////////////////////////
 router.get('/get-all-users', usercontroller.validateTokenMiddleware, adminController.getUserList);
 router.put('/activate-or-deactivate/:userId', (0, celebrate_1.celebrate)(Activate), usercontroller.validateTokenMiddleware, adminController.activeUser, adminController.deactiveUser);
+/////////////////////////////////////////// 7.4 Refund API //////////////////////////////////////////////////
+router.put('/refund-amount/:serviceRequestId', usercontroller.validateTokenMiddleware, adminController.refundAmount);
 module.exports = router;

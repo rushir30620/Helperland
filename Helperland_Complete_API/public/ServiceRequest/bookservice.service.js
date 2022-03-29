@@ -142,6 +142,11 @@ var ServiceBook = /** @class */ (function () {
         };
         return mailOptions;
     };
+    ServiceBook.prototype.convertStringtoDate = function (date) {
+        var updateddate = date.toString().split('-').reverse().join('-');
+        var convertedDate = new Date(updateddate);
+        return convertedDate;
+    };
     return ServiceBook;
 }());
 exports.ServiceBook = ServiceBook;

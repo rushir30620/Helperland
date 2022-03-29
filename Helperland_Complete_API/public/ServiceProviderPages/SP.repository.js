@@ -70,6 +70,13 @@ var SPPageRepository = /** @class */ (function () {
             });
         });
     };
+    SPPageRepository.prototype.getAcceptedServiceRequest = function (serviceRequestId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, index_1.db.ServiceRequest.findOne({ where: { ServiceRequestId: serviceRequestId, Status: 2 }, include: ["ServiceRequestAddress", "ExtraService"] })];
+            });
+        });
+    };
     SPPageRepository.prototype.getServiceProvider = function (userId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {

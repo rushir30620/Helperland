@@ -70,4 +70,11 @@ export class ServiceBook{
         };
         return mailOptions;
     }
+
+    public convertStringtoDate(date:any){
+        const updateddate = date.toString().split('-').reverse().join('-');
+        const convertedDate = new Date(updateddate);
+        return convertedDate;
+    }
+
 }

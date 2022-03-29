@@ -389,52 +389,52 @@ var SPPageController = /** @class */ (function () {
             });
         }); };
         this.cancelServiceRequest = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var serviceRequest;
+            var serviceRequestId;
             var _this = this;
             return __generator(this, function (_a) {
-                serviceRequest = req.params.serviceRequestId;
-                if (serviceRequest) {
-                    return [2 /*return*/, this.spPageService.getServiceRequestById(req.params.serviceRequestId)
-                            .then(function (customer) { return __awaiter(_this, void 0, void 0, function () {
-                            var customerObj, result;
+                serviceRequestId = +req.params.serviceRequestId;
+                if (serviceRequestId) {
+                    return [2 /*return*/, this.spPageService.getAcceptedServiceRequest(+req.params.serviceRequestId)
+                            .then(function (serviceRequest) { return __awaiter(_this, void 0, void 0, function () {
+                            var spObj, result;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        if (!!customer) return [3 /*break*/, 1];
+                                        if (!!serviceRequest) return [3 /*break*/, 1];
                                         return [2 /*return*/, res.status(404).json({ msg: "Service Request Not Found" })];
                                     case 1:
-                                        customerObj = {
-                                            ServiceRequestId: customer.ServiceRequestId,
-                                            ServiceId: customer.ServiceId,
-                                            ServiceStartDate: customer.ServiceStartDate,
-                                            ServiceStartTime: customer.ServiceStartTime,
-                                            ZipCode: customer.ZipCode,
-                                            ServiceHourlyRate: customer.ServiceHourlyRate,
-                                            ServiceHours: customer.ServiceHours,
-                                            ExtraHours: customer.ExtraHours,
-                                            SubTotal: customer.SubTotal,
-                                            Discount: customer.Discount,
-                                            TotalCost: customer.TotalCost,
+                                        spObj = {
+                                            ServiceRequestId: serviceRequest.ServiceRequestId,
+                                            ServiceId: serviceRequest.ServiceId,
+                                            ServiceStartDate: serviceRequest.ServiceStartDate,
+                                            ServiceStartTime: serviceRequest.ServiceStartTime,
+                                            ZipCode: serviceRequest.ZipCode,
+                                            ServiceHourlyRate: serviceRequest.ServiceHourlyRate,
+                                            ServiceHours: serviceRequest.ServiceHours,
+                                            ExtraHours: serviceRequest.ExtraHours,
+                                            SubTotal: serviceRequest.SubTotal,
+                                            Discount: serviceRequest.Discount,
+                                            TotalCost: serviceRequest.TotalCost,
                                             Comments: req.body.Comments,
-                                            PaymentTransactionRefNo: customer.PaymentTransactionRefNo,
-                                            PaymentDue: customer.PaymentDue,
-                                            SPAcceptedDate: customer.SPAcceptedDate,
-                                            HasPets: customer.HasPets,
+                                            PaymentTransactionRefNo: serviceRequest.PaymentTransactionRefNo,
+                                            PaymentDue: serviceRequest.PaymentDue,
+                                            SPAcceptedDate: serviceRequest.SPAcceptedDate,
+                                            HasPets: serviceRequest.HasPets,
                                             Status: 4,
-                                            ModifiedBy: customer.ModifiedBy,
-                                            RefundedAmount: customer.RefundedAmount,
-                                            Distance: customer.Distance,
-                                            HasIssue: customer.HasIssue,
-                                            PaymentDone: customer.PaymentDone,
-                                            RecordVersion: customer.RecordVersion,
-                                            UserId: customer.UserId,
-                                            ServiceProviderId: customer.ServiceProviderId
+                                            ModifiedBy: serviceRequest.ModifiedBy,
+                                            RefundedAmount: serviceRequest.RefundedAmount,
+                                            Distance: serviceRequest.Distance,
+                                            HasIssue: serviceRequest.HasIssue,
+                                            PaymentDone: serviceRequest.PaymentDone,
+                                            RecordVersion: serviceRequest.RecordVersion,
+                                            UserId: serviceRequest.UserId,
+                                            ServiceProviderId: serviceRequest.ServiceProviderId
                                         };
-                                        return [4 /*yield*/, models_1.default.ServiceRequest.update(customerObj, { where: { ServiceRequestId: serviceRequest } })];
+                                        return [4 /*yield*/, models_1.default.ServiceRequest.update(spObj, { where: { ServiceRequestId: serviceRequestId } })];
                                     case 2:
                                         result = _a.sent();
                                         if (result) {
-                                            return [2 /*return*/, res.status(200).json({ customerObj: customerObj })];
+                                            return [2 /*return*/, res.status(200).json({ spObj: spObj })];
                                         }
                                         else {
                                             return [2 /*return*/, res.status(500).json({ msg: "Not Found" })];

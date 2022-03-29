@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 require('dotenv').config();
 
-const userTypeID: number = 2;
+const userTypeID: number = 3;
 
 export class ServiceProviderController{
     public constructor(private readonly serviceProviderService: ServiceProviderService) {
@@ -129,7 +129,7 @@ export class ServiceProviderController{
                     }
                     return res.status(401).json({ message: "Invalid Email or Password"});
                 }
-                return res.status(401).json({ message: "Please Active Your Account"});
+                return res.status(401).json({ message: "Please wait until admin active your account"});
             }
         })
         .catch((error: Error) => {

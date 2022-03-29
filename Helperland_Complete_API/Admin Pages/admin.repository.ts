@@ -39,23 +39,12 @@ export class AdminRepository {
         });
     }
 
-    // public async rescheduleDateandTime(date: Date,time: string,serviceId: number): Promise<[number, ServiceRequest[]]> {
-    //     return db.ServiceRequest.update(
-    //       { ServiceStartDate: date, ServiceStartTime: time },
-    //       { where: { ServiceRequestId: serviceId } }
-    //     );
-    // }
-
     public async rescheduleDateandTime(sr: editServiceDetail, serviceId: number): Promise<[number, ServiceRequest[]]> {
         return db.ServiceRequest.update(
             { ServiceStartDate: new Date(sr.ServiceStartDate.toString().split("-").reverse().join('-')), ServiceStartTime: sr.ServiceStartTime, Comments: sr.Comments + sr.Note },
             { where: { ServiceRequestId: serviceId } }
         );
     }
-
-    // public async updateMyAddress(address: ServiceRequestAddress, addressId:number){
-    //     return db.ServiceRequestAddress.update(address, { where: {ServiceRequestId: addressId}});
-    // }
 
     public async updateMyAddress(address: editServiceDetail, addressId: number) {
         return db.ServiceRequestAddress.update({
@@ -64,6 +53,10 @@ export class AdminRepository {
             PostalCode: address.serviceAddress.PostalCode,
             City: address.serviceAddress.City
         }, { where: { ServiceRequestId: addressId } });
+    }
+
+    public async getAcceptedServiceRequest(serviceRequestId: number): Promise<ServiceRequest | null> {
+        return db.ServiceRequest.findOne({ where: {ServiceRequestId: serviceRequestId, Status: [1,2]}, include: ["ServiceRequestAddress", "ExtraService"]});
     }
 
     public async getServiceRequests(srId : number): Promise<ServiceRequest[]> {
@@ -128,5 +121,8 @@ export class AdminRepository {
         return db.Users.findOne({ where: { id: usId, userTypeId: [3,4] } });
     }
 
+    /////////////////////////////////////////// 7.4 Refund Amount API //////////////////////////////////////////////////
+
+    // public async refundAmount()
 
 }

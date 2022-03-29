@@ -32,6 +32,10 @@ export class SPPageService {
     return this.spPageRepository.getServiceRequestById(parseInt(serviceRequestId));
   }
 
+  public async getAcceptedServiceRequest(serviceRequestId: number): Promise<ServiceRequest | null> {
+    return this.spPageRepository.getAcceptedServiceRequest(serviceRequestId);
+  }
+
   public async getServiceProvider(userId: number): Promise<User[] | null> {
     return this.spPageRepository.getServiceProvider(userId);
   }

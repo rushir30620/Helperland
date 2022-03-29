@@ -121,6 +121,13 @@ var AdminService = /** @class */ (function () {
             });
         });
     };
+    AdminService.prototype.getAcceptedServiceRequest = function (serviceRequestId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.adminRepository.getAcceptedServiceRequest(serviceRequestId)];
+            });
+        });
+    };
     AdminService.prototype.getServiceRequests = function (srId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -138,14 +145,45 @@ var AdminService = /** @class */ (function () {
             return false;
         }
     };
-    AdminService.prototype.mailData = function (userEmail, serviceRequestId) {
+    AdminService.prototype.mailData = function (userEmail, helperEmail, serviceRequestId) {
         var mailOptions = {
             from: process.env.USER,
-            to: userEmail,
+            to: "".concat(userEmail, ",").concat(helperEmail),
             subject: "Service Request Rescheduled",
-            html: "<h3>A service request ".concat(serviceRequestId, " has been rescheduled. Please check it out.</h3>")
+            html: "<h3>A service request ".concat(serviceRequestId, " has been rescheduled successfully. Please check it out.</h3>")
         };
         return mailOptions;
+    };
+    AdminService.prototype.check = function (date, servicerequest, time, totalHour) {
+        return __awaiter(this, void 0, void 0, function () {
+            var newServiceDate, newServiceEnd, flag;
+            return __generator(this, function (_a) {
+                newServiceDate = new Date(date.split("-").reverse().join("-"));
+                newServiceDate.setHours(parseInt(time.toString().split(':')[0]));
+                newServiceDate.setMinutes(parseInt(time.toString().split(':')[1]));
+                newServiceEnd = new Date(newServiceDate);
+                newServiceEnd.setHours(newServiceDate.getHours() + Math.floor(totalHour));
+                newServiceEnd.setMinutes((totalHour - Math.floor(totalHour)) * 60);
+                servicerequest.forEach(function (s) {
+                    var oldServiceStart = new Date(s.ServiceStartDate);
+                    oldServiceStart.setHours(parseInt(s.ServiceStartTime.toString().split(':')[0]));
+                    oldServiceStart.setMinutes(parseInt(s.ServiceStartTime.toString().split(':')[1]));
+                    var total = s.ServiceHours + s.ExtraHours;
+                    var oldServiceEnd = oldServiceStart;
+                    oldServiceEnd.setHours(oldServiceEnd.getHours() + Math.floor(total));
+                    oldServiceEnd.setMinutes((total - Math.floor(total)) * 60);
+                    if ((newServiceDate >= oldServiceStart && newServiceDate <= oldServiceEnd) ||
+                        (newServiceEnd >= oldServiceStart && newServiceEnd <= oldServiceEnd) ||
+                        (oldServiceStart >= newServiceDate && oldServiceEnd <= newServiceEnd)) {
+                        flag = true;
+                    }
+                    else {
+                        flag = false;
+                    }
+                });
+                return [2 /*return*/, { flag: flag }];
+            });
+        });
     };
     ////////////////////////////////////////////// 7.2 Filters API ///////////////////////////////////////////////
     AdminService.prototype.searchByServiceId = function (serviceId) {
@@ -257,6 +295,87 @@ var AdminService = /** @class */ (function () {
                         else {
                             endTime[1] = "00";
                         }
+                        if (user && address) {
+                            if (helper) {
+                                serviceDetail.push({
+                                    ServiceId: request[sr].ServiceRequestId,
+                                    ServiceDate: request[sr].ServiceStartDate.toString().split("-").reverse().join("-"),
+                                    ServiceTime: startTime[0] + ":" + startTime[1] + "-" + endTime[0] + ":" + endTime[1],
+                                    Customer: user.firstName + " " + user.lastName,
+                                    serviceAddress: {
+                                        Street: address.Addressline1,
+                                        HouseNumber: address.Addressline2,
+                                        City: address.City,
+                                        PostalCode: address.PostalCode
+                                    },
+                                    ServiceProvider: (helper === null || helper === void 0 ? void 0 : helper.firstName) + " " + (helper === null || helper === void 0 ? void 0 : helper.lastName),
+                                    GrossAmount: request[sr].TotalCost + " €",
+                                    NetAmount: request[sr].TotalCost + " €",
+                                    Discount: request[sr].Discount,
+                                    Status: request[sr].Status
+                                });
+                            }
+                            else {
+                                serviceDetail.push({
+                                    ServiceId: request[sr].ServiceRequestId,
+                                    ServiceDate: request[sr].ServiceStartDate.toString().split("-").reverse().join("-"),
+                                    ServiceTime: startTime[0] + ":" + startTime[1] + "-" + endTime[0] + ":" + endTime[1],
+                                    Customer: user.firstName + " " + user.lastName,
+                                    serviceAddress: {
+                                        Street: address.Addressline1,
+                                        HouseNumber: address.Addressline2,
+                                        City: address.City,
+                                        PostalCode: address.PostalCode
+                                    },
+                                    ServiceProvider: "No service provider",
+                                    GrossAmount: request[sr].TotalCost + " €",
+                                    NetAmount: request[sr].TotalCost + " €",
+                                    Discount: request[sr].Discount,
+                                    Status: request[sr].Status
+                                });
+                            }
+                        }
+                        _c.label = 5;
+                    case 5:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 6: return [2 /*return*/, serviceDetail];
+                }
+            });
+        });
+    };
+    AdminService.prototype.requestData2 = function (request) {
+        return __awaiter(this, void 0, void 0, function () {
+            var serviceDetail, _a, _b, _i, sr, user, address, helper, startTime, endTime;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        serviceDetail = [];
+                        _a = [];
+                        for (_b in request)
+                            _a.push(_b);
+                        _i = 0;
+                        _c.label = 1;
+                    case 1:
+                        if (!(_i < _a.length)) return [3 /*break*/, 6];
+                        sr = _a[_i];
+                        return [4 /*yield*/, this.adminRepository.getCustomerDetail(request[sr].UserId)];
+                    case 2:
+                        user = _c.sent();
+                        return [4 /*yield*/, this.adminRepository.getSRAddress(request[sr].ServiceRequestId)];
+                    case 3:
+                        address = _c.sent();
+                        return [4 /*yield*/, this.adminRepository.getSPDetail(request[sr].ServiceProviderId)];
+                    case 4:
+                        helper = _c.sent();
+                        startTime = request[sr].ServiceStartTime.toString().split(":");
+                        endTime = (parseFloat(startTime[0]) + parseFloat(startTime[1]) / 60 + request[sr].ServiceHours + request[sr].ExtraHours).toString().split(".");
+                        if (endTime[1]) {
+                            endTime[1] = (parseInt(endTime[1]) * 6).toString();
+                        }
+                        else {
+                            endTime[1] = "00";
+                        }
                         if (user && address && helper) {
                             serviceDetail.push({
                                 ServiceId: request[sr].ServiceRequestId,
@@ -269,7 +388,7 @@ var AdminService = /** @class */ (function () {
                                     City: address.City,
                                     PostalCode: address.PostalCode
                                 },
-                                ServiceProvider: helper.firstName + " " + helper.lastName,
+                                ServiceProvider: (helper === null || helper === void 0 ? void 0 : helper.firstName) + " " + (helper === null || helper === void 0 ? void 0 : helper.lastName),
                                 GrossAmount: request[sr].TotalCost + " €",
                                 NetAmount: request[sr].TotalCost + " €",
                                 Discount: request[sr].Discount,
